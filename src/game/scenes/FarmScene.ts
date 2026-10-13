@@ -8,6 +8,9 @@ import { computeTargetTile, tileIdOf } from "../utils/targetTile";
 import { getItem } from "../../data/items";
 import { ItemCategory } from "../../domain/models/Item";
 import type { Stage } from "../../domain/models/Crop";
+import type { Season } from "../../domain/models/types";
+// ── P5-A：纹理 key 解析唯一来源（与 placeholderAssets 共用，避免命名漂移）──
+import { grassKey, rockKey, treeKey, waterKey } from "../systems/placeholderAssets";
 
 const TILE_TEXTURE: Record<TileDef["key"], string> = {
   grass: "tile_grass",
@@ -54,20 +57,22 @@ function itemIcon(itemId: string | null, category?: ItemCategory): string {
   return "icon_empty";
 }
 
-// ── P4：按 (row,col) 确定性选变体纹理，消除 864 格平铺机械重复感 ──
-const GRASS_KEYS = ["tile_grass", "tile_grass_b", "tile_grass_c", "tile_grass_d"] as const;
-
-function tileTextureFor(key: TileDef["key"], r: number, c: number): string {
+// ── P5-A：按 (row,col) 确定性选变体纹理 + 当季映射 ──
+// 三个取模公式与 P4 **逐字符一致** → 变体/树种的归属与季节无关，换季不会"重新洗牌"。
+function tileTextureFor(key: TileDef["key"], r: number, c: number, season: Season): string {
   switch (key) {
     case "grass":
       // 4 变体轮转（行列混合取模，分布自然且确定性）
-      return GRASS_KEYS[((r * 13 + c * 7) % 4 + 4) % 4];
+      return grassKey(season, ((r * 13 + c * 7) % 4 + 4) % 4);
     case "tree":
-      // 每 5 棵 1 棵粉花树
-      return (r * 11 + c * 5) % 5 === 0 ? "tile_tree_b" : "tile_tree";
+      // 每 5 棵 1 棵变体树
+      return treeKey(season, (r * 11 + c * 5) % 5 === 0 ? 1 : 0);
     case "rock":
       // 每 3 块 1 块卧石
-      return (r * 3 + c * 17) % 3 === 0 ? "tile_rock_b" : "tile_rock";
+      return rockKey(season, (r * 3 + c * 17) % 3 === 0 ? 1 : 0);
+    case "water":
+      // 水面基础帧（具体帧由水波定时器按当季切换）
+      return waterKey(season, 0);
     default:
       return TILE_TEXTURE[key];
   }
@@ -103,6 +108,16 @@ export class FarmScene extends Phaser.Scene {
   private waterFrame = false;
   private waterTimer?: Phaser.Time.TimerEvent;
 
+  // ── P5-A：四季外观 —— 地面图元缓存 + 当前季 ────
+  // 换季只对这批图元做 setTexture：不销毁/不重建精灵、不动物理体、不碰玩家与相机。
+  private groundTiles: {
+    img: Phaser.GameObjects.Image;
+    key: TileDef["key"];
+    r: number;
+    c: number;
+  }[] = [];
+  private season: Season = "spring";
+
   // ── P3：木质 HUD 面板与快捷栏选中态 ───────────
   private hotbarSlots: Phaser.GameObjects.Image[] = [];
   private hotbarIcons: Phaser.GameObjects.Image[] = [];
@@ -129,6 +144,10 @@ export class FarmScene extends Phaser.Scene {
     this.hotbarSlots = [];
     this.hotbarIcons = [];
     this.lastHotbarKey = "";
+    // P5-A：清空地面图元缓存，并把"当前季"对齐到会话真实季节
+    // （必须在建格循环之前，循环用它选纹理 → 首帧即正确，无换季闪烁）
+    this.groundTiles = [];
+    this.season = session.time.date.season;
 
     this.physics.world.setBounds(0, 0, world.width * TILE, world.height * TILE);
 
@@ -139,14 +158,19 @@ export class FarmScene extends Phaser.Scene {
         const tile = world.tiles[r][c];
         const cx = c * TILE + TILE / 2;
         const cy = r * TILE + TILE / 2;
-        // P4：按格选变体纹理（草地 4 变体 / 树木粉花 / 岩石卧石）；碰撞与位置不变
-        const tex = tileTextureFor(tile.key, r, c);
-      if (tile.solid) {
-        const s = solids.create(cx, cy, tex);
-        if (tile.key === "water" && s) this.waterImages.push(s as Phaser.GameObjects.Image);
-      } else {
-        this.add.image(cx, cy, tex);
-      }
+        // P5-A：按格 + **当季**选纹理（变体取模公式与季节无关 → 换季不重排）
+        const tex = tileTextureFor(tile.key, r, c, this.season);
+        let img: Phaser.GameObjects.Image;
+        if (tile.solid) {
+          const s = solids.create(cx, cy, tex);
+          if (!s) continue;
+          img = s as Phaser.GameObjects.Image;
+          if (tile.key === "water") this.waterImages.push(img);
+        } else {
+          img = this.add.image(cx, cy, tex);
+        }
+        // P5-A：缓存地面图元，供换季统一 setTexture（不销毁、不重建、不动物理体）
+        this.groundTiles.push({ img, key: tile.key, r, c });
       }
     }
 
@@ -167,13 +191,14 @@ export class FarmScene extends Phaser.Scene {
     this.physics.add.collider(this.player.sprite, solids);
 
     // P1：水面双帧动画（600ms 切换水波高光；只 setTexture，不重建精灵/碰撞体）
+    // P5-A：回调**实时读取** this.season → 换季不必重建定时器也能自动切到当季帧对
     if (this.waterImages.length > 0) {
       this.waterTimer = this.time.addEvent({
         delay: 600,
         loop: true,
         callback: () => {
           this.waterFrame = !this.waterFrame;
-          const key = this.waterFrame ? "tile_water_b" : "tile_water_a";
+          const key = waterKey(this.season, this.waterFrame ? 1 : 0);
           for (const img of this.waterImages) img.setTexture(key);
         },
       });
@@ -521,6 +546,22 @@ export class FarmScene extends Phaser.Scene {
     }
   }
 
+  // ── P5-A：换季刷新 ─────────────────────────────
+  // 只对地面图元调用 setTexture：
+  //   · 不重建 GameSession / 不重置玩家位置 / 不动 physics.world 与 camera
+  //   · 不销毁也不重建水波定时器（回调实时读 this.season）
+  //   · 所有季节变体尺寸恒为 32×32 → StaticBody 无需 refreshBody()
+  private applySeason(season: Season): void {
+    for (const t of this.groundTiles) {
+      const tex =
+        t.key === "water"
+          ? waterKey(season, this.waterFrame ? 1 : 0)
+          : tileTextureFor(t.key, t.r, t.c, season);
+      if (t.img.texture.key !== tex) t.img.setTexture(tex);
+    }
+    this.season = season;
+  }
+
   private trySleep(world: ReturnType<typeof parseFarm01>): void {
     if (this.sleeping) return;
     const bedCenter = {
@@ -583,6 +624,10 @@ export class FarmScene extends Phaser.Scene {
       this.updateHud();
     }
 
+    // ── P5-A：季节脏检查（1 次字符串比较/帧；仅变化时重贴纹理）──
+    const season = session.time.date.season;
+    if (season !== this.season) this.applySeason(season);
+
     // T4-3：更新目标格高亮（越界隐藏）
     const target = this.getTargetTileId();
     if (target) {
@@ -643,5 +688,9 @@ export class FarmScene extends Phaser.Scene {
     this.hotbarIcons = [];
     this.hotbarSelected?.destroy();
     this.lastHotbarKey = "";
+
+    // P5-A：清空地面图元缓存与季节状态（显示对象由场景显示列表统一回收）
+    this.groundTiles = [];
+    this.season = "spring";
   }
 }
