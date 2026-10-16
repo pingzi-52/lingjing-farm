@@ -15,6 +15,8 @@ npm run dev -- --host 127.0.0.1 --port 5175 --strictPort
 
 打开 http://127.0.0.1:5175/index.html 。私有仓库需要使用有权限的 GitHub 账号登录。素材已包含，无需重新下载；浏览器中的个人游玩存档不随源码同步，另见交接文档。
 
+也可以登录 GitHub 后，在仓库页选择 **Code → Download ZIP**，解压后从 `npm ci` 开始。该方式包含全部开发文件和素材，但不含 Git 提交历史。
+
 - 精致现代像素风，Phaser 3 + TypeScript + Vite
 - 目标平台：桌面浏览器（Chrome / Edge 优先），单人游玩
 - 本地存档：localStorage，无后端、无账号系统
@@ -32,16 +34,16 @@ npm run dev -- --host 127.0.0.1 --port 5175 --strictPort
 ## 安装
 
 ```bash
-npm install
+npm ci
 ```
 
 ## 开发运行
 
 ```bash
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 5175 --strictPort
 ```
 
-打开终端提示的地址（默认 http://localhost:5173 ）。
+打开 http://127.0.0.1:5175/index.html 。保持相同主机名和端口，避免同机浏览器因 origin 不同而显示另一份本地存档。
 
 ## 操作
 
@@ -122,12 +124,6 @@ tests/                   Vitest 单元测试
 - 金币 / 日期等状态只存在于 `GameSession`（模块级单例），场景切换不重置
 - 场景只读取会话状态做表现，不持有权威数值
 
-## 下一阶段预留接口
+## 继续开发
 
-| 模块 | 建议接口 |
-|---|---|
-| 农业种植 | `CropService`（种子/生长/收获），挂入 `GameSession` |
-| 背包 | `InventoryService`（物品槽 + 容量），`add/remove/has` |
-| 经济扩展 | 在 `EconomyService` 上加 `buyItem(id)` / 物品价格表 `src/data/pricing.ts` |
-| 存档 v2 | `SaveData` 增加 `crops/inventory` 字段 + 版本迁移函数 |
-| 季节效果 | 基于 `TimeService.date.season` 的门控（作物适种/天气） |
+先按 [跨电脑交接](docs/handoff-2026-10-16.md) 在新电脑完成安装、测试和试玩，再处理地图可读性、居民动作及其他季节素材。种植、背包、交易和 V6 存档已经实现，当前状态以 [PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) 和 [TASK_PROGRESS.md](TASK_PROGRESS.md) 顶部记录为准。

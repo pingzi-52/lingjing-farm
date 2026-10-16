@@ -1,12 +1,16 @@
-# 当前：完整进度备份到私有 GitHub 仓库（2026-10-16，进行中）
+# 当前：完整开发进度已上传私有 GitHub（2026-10-16）
 
-用户明确要求将当前全部进度上传GitHub，随后选定新建独立私有仓库 pingzi-52/lingjing-farm，用于回家继续开发。本轮范围为完整源码/素材原图与帧表/许可/测试/截图/规划与验收资料/交接，保留既有用户和Claude修改，不开发新玩法、不公开发布。
+用户要求全部进度上传并明确选定新私有仓库 pingzi-52/lingjing-farm。已创建private仓库并推送远程main，代码快照b6a995c6304b628af6c1e3bb0fbf9f398e69f284，本地与GitHub API核对commit及完整tree 2afcd76a740ca73092de6653bfff44777bb0e6e3一致。551文件/327素材，约25.3MB解压源树，全部代码、原图帧表、来源许可、测试、截图、规划及交接齐全。没有公开Release或线上部署。
 
-已完成：重新核对原master/1073f6a且无remote，独立只读审计548候选文件约24.1MiB（素材327份、docs102份），无真实凭据/个人会话文件、无100MiB大文件、无运行时盘符依赖、无源文件被忽略。新增docs/handoff-2026-10-16.md与PROJECT_CONTEXT.md，README增加跨电脑克隆/npm ci/固定5175启动，.nvmrc固定本机验证Node24.16.0（npm11.13.0）。本轮重新npm run build通过72模块，39文件657测试通过，素材不需重下。node_modules/dist/cache/log/env/个人存档仍排除；第三方素材保留来源，仓库只设private。
+新机器：读docs/handoff-2026-10-16.md、PROJECT_CONTEXT.md和README顶部；git clone https://github.com/pingzi-52/lingjing-farm.git，cd lingjing-farm，npm ci，npm run dev -- --host 127.0.0.1 --port 5175 --strictPort，打开/index.html。也可仓库Code→Download ZIP解压后安装。Node本机验证24.16.0/npm11.13.0，.nvmrc已固定。无需原电脑盘符、旧临时脚本、重新下载素材或配置env密钥。个人localStorage游玩档不随源码跨机同步；未读取或上传用户浏览器数据。
 
-上传状态：尚未创建/推送仓库。连接器有GitHub账号pingzi-52，但本机Git未登录；标准Git凭据助手非交互检查未找到可用凭据，需要GitHub网页登录授权，禁止把token粘到聊天或写入仓库。上轮2026-10-15尝试因自动审批额度未执行；本轮审批已恢复。git-pushing技能引用smart_commit.sh文件实际缺失（已按两技能根搜索），使用本地可审查替代脚本执行标准Git提交/推送，不强推。
+验证：本轮项目原目录657测试/39文件和72模块构建通过；完整快照新克隆目录npm ci安装39packages，657测试与72模块构建再次通过。独立安全复核551个候选无真实token/私钥/个人会话或100MB文件，无运行时绝对盘符依赖，忽略规则未漏源码素材。7处旧文本末尾多余空行仅格式清理有备份，未改玩法逻辑；staged diff--check通过。源码版本仍0.1.0，小型测试版不是正式商业发布。
 
-下一执行点：安装上述文档、建立独立本地备份分支并审查staged diff，提交完整快照，生成ZIP与Git bundle及SHA清单；完成GitHub标准网页登录后创建private仓库，添加无凭据origin，推送到远程main，再比较本地/远端HEAD与完整树。所有备份位于工作区farm-github，不把浏览器profile或令牌放入项目。GitHub Code下载ZIP即可拿到完整源树。开发进度备份不包括用户浏览器localStorage游玩档。
+Git：本地独立backup/home-2026-10-16保留全部原master/1073f6a历史；origin为上述无凭据HTTPS地址，远程默认main。标准GitHub网页登录已完成，未在聊天/项目中输出或保存token。Git网络使用系统现有代理仅命令级路由，不改全局网络/SSL配置。初次push已上传成功但-u子进程写本地tracking失败，使用GitHub完整树验证区分服务器成功和本地tracking；后续文档同步推送与最终HEAD以git log/远端main为准，不强推。
+
+离线备份在本机工作区farm-github：lingjing-farm-2026-10-16.zip、同名.bundle与SHA256SUMS.txt（不入项目仓库）。ZIP是完整源树，bundle保留全部Git历史；从bundle恢复的fresh目录已验证。最新文档补记通过后重新生成最终ZIP/bundle与清单。原始备份副本保留，原素材字节未改；node_modules/dist/log/cache/env/个人存档不上传。GitHub Code下载ZIP永远对应所选分支最新源树。
+
+交接下一步：回家先验证启动与完整小流程，再按试玩反馈改善森林/小镇可读性、NPC动作和其他季节素材。现有自然步行路线与只读L保留，不退回菜单传送；旧田/存档保护不变。关系/作息/钓鱼/节庆/工具升级等仍未做，暂无新玩法扩展。本轮上传已经完成，后面保留备份前的历史记录。
 
 ---
 
