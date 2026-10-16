@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { pickFacing, type Facing } from "../utils/targetTile";
+import { FarmerVisual, type FarmerAction } from "../systems/farmerVisual";
 
 const SPEED = 160;
 
@@ -24,6 +25,7 @@ export class Player {
   };
   private frameTimer = 0;
   private facingDir: Facing = "down";
+  private readonly visual: FarmerVisual;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     this.scene = scene;
@@ -36,6 +38,12 @@ export class Player {
     this.sprite = scene.physics.add.sprite(x, y, "player_0");
     this.sprite.setCollideWorldBounds(true);
     this.sprite.setDepth(10);
+    this.visual = new FarmerVisual(scene, x, y + 16);
+    if (this.visual.enabled) {
+      this.sprite.setVisible(false);
+      // ArcadePhysics registered its body-to-sprite sync before this scene's create.
+      scene.events.on(Phaser.Scenes.Events.POST_UPDATE, this.syncVisual, this);
+    }
   }
 
   get x(): number {
@@ -88,9 +96,19 @@ export class Player {
       this.sprite.setTexture("player_0");
       this.frameTimer = 0;
     }
+    this.visual.update(this.facingDir, moving, delta);
   }
 
+  private syncVisual(): void {
+    this.visual.syncPosition(this.sprite.x, this.sprite.y + 16);
+  }
+
+  /** Action feedback changes only the display companion, never gameplay or its body. */
+  playAction(action: FarmerAction): void { this.visual.playAction(action); }
+
   destroy(): void {
+    this.scene.events.off(Phaser.Scenes.Events.POST_UPDATE, this.syncVisual, this);
+    this.visual.destroy();
     const kb = this.scene.input.keyboard;
     for (const list of Object.values(this.keys)) {
       for (const k of list) kb?.removeKey(k);

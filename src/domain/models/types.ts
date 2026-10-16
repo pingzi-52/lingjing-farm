@@ -1,22 +1,40 @@
-/** 季节枚举（原创设定：一季 14 天，一年 56 天） */
-export type Season = "spring" | "summer" | "autumn" | "winter";
+import type { FarmTileState } from "./Crop";
+import type { InventoryState } from "./Item";
 
-/** 当前游戏日期 */
-export interface DateInfo {
-  /** 游戏内总天数，从 1 开始 */
-  day: number;
-  /** 当前所处季节 */
-  season: Season;
+/** 原创日历：每季14天 */
+export type Season = "spring" | "summer" | "autumn" | "winter";
+export interface DateInfo { day: number; season: Season }
+
+/** 游戏内当日分钟（06:00..22:00，10分钟步进）与剩余体力。 */
+export interface DailyState { minute: number; energy: number }
+
+/** 入门委托：未接取时没有目标，接取后保存已知作物ID。 */
+export type IntroQuestState =
+  | { status: "available"; cropId: null }
+  | { status: "active" | "completed"; cropId: string };
+
+export type ExplorationQuestStatus = "available" | "active" | "completed";
+
+/** 仅持久化探索进度和稳定采集ID，不保存场景或渲染坐标。 */
+export interface ExplorationState {
+  forageDay: number;
+  picked: string[];
+  forestQuest: ExplorationQuestStatus;
+  carpenterQuest: ExplorationQuestStatus;
+  lanternBuilt: boolean;
 }
 
-/** 存档数据（v1） */
+/** V6完整存档含林地探索进度；V1..V5在读取边界严格验证并迁移。 */
 export interface SaveData {
-  version: number;
+  version: 6;
   gold: number;
   day: number;
+  inventory: InventoryState;
+  chest: InventoryState;
+  farming: FarmTileState[];
+  daily: DailyState;
+  introQuest: IntroQuestState;
+  exploration: ExplorationState;
 }
-
-export const SAVE_VERSION = 1;
-
-/** 存档 key */
+export const SAVE_VERSION = 6;
 export const SAVE_KEY = "four-seasons-farm/save";

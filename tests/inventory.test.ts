@@ -145,9 +145,9 @@ describe("InventoryService - add itemId 隔离", () => {
 // ────────────────────────────────────────────────
 describe("InventoryService - add 空间不足", () => {
   it("满包 24 格 → INVENTORY_FULL", () => {
-    // ITEMS 恰好 24 项，逐个各占一格塞满
-    expect(ITEMS.length).toBe(24);
-    for (const it of ITEMS) {
+    // 前 24 个原有物品逐个占一格塞满，新增材料不影响固定容量。
+    expect(ITEMS.length).toBe(28);
+    for (const it of ITEMS.slice(0, 24)) {
       const r = inv.add(it.id, it.stackable ? 99 : 1);
       expect(r.ok).toBe(true);
     }
@@ -158,7 +158,7 @@ describe("InventoryService - add 空间不足", () => {
 
   it("原子性：失败时不改动任何槽（状态不变性）", () => {
     // 24 种物品各占一格塞满
-    for (const it of ITEMS) inv.add(it.id, it.stackable ? 99 : 1);
+    for (const it of ITEMS.slice(0, 24)) inv.add(it.id, it.maxStack);
     const before = inv.serialize();
 
     const r = inv.add("dew_radish", 1);
@@ -237,7 +237,7 @@ describe("InventoryService - count / hasSpace", () => {
   });
 
   it("hasSpace：满包时返回 false", () => {
-    for (const it of ITEMS) inv.add(it.id, it.stackable ? 99 : 1);
+    for (const it of ITEMS.slice(0, 24)) inv.add(it.id, it.maxStack);
     expect(inv.hasSpace("dew_radish", 1)).toBe(false);
   });
 
@@ -295,8 +295,8 @@ describe("InventoryService - serialize / restore", () => {
 // ITEMS 数据完整性（与 T1 crops.ts 一致性）
 // ────────────────────────────────────────────────
 describe("ITEMS 数据完整性", () => {
-  it("总计 24 项（2 工具 + 11 种子 + 11 作物）", () => {
-    expect(ITEMS.length).toBe(24);
+  it("总计 28 项（保留 24 项原物品，新增 3 材料与 1 食物）", () => {
+    expect(ITEMS.length).toBe(28);
     const tools = ITEMS.filter((i) => i.category === ItemCategory.Tool);
     const seeds = ITEMS.filter((i) => i.category === ItemCategory.Seed);
     const crops = ITEMS.filter((i) => i.category === ItemCategory.Crop);

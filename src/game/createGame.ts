@@ -3,8 +3,11 @@ import { VIEW } from "./config";
 import { BootScene } from "./scenes/BootScene";
 import { TitleScene } from "./scenes/TitleScene";
 import { FarmScene } from "./scenes/FarmScene";
+import { HomeScene } from "./scenes/HomeScene";
+import { ForestScene, TownScene } from "./scenes/ExplorationScene";
 import { initGameSession } from "./systems/GameSession";
 import { createLocalSaveManager } from "../persistence/save";
+import { getFarmAudio } from "./systems/farmAudio";
 
 /**
  * 创建 Phaser 游戏实例。
@@ -13,6 +16,8 @@ import { createLocalSaveManager } from "../persistence/save";
  */
 export function createGame(): Phaser.Game {
   initGameSession(createLocalSaveManager());
+  const audio = getFarmAudio();
+  audio.install();
 
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -20,14 +25,17 @@ export function createGame(): Phaser.Game {
     width: VIEW.width,
     height: VIEW.height,
     pixelArt: true,
+    audio: { noAudio: true }, // The single farm audio service owns Web Audio and gesture unlocking.
     physics: {
       default: "arcade",
       arcade: {
         gravity: { x: 0, y: 0 },
       },
     },
-    scene: [BootScene, TitleScene, FarmScene],
+    scene: [BootScene, TitleScene, FarmScene, HomeScene, ForestScene, TownScene],
   };
 
-  return new Phaser.Game(config);
+  const game = new Phaser.Game(config);
+  game.events.once(Phaser.Core.Events.DESTROY, () => audio.destroy());
+  return game;
 }

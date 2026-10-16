@@ -1,14 +1,16 @@
 import Phaser from "phaser";
 import { SCENE_TITLE } from "../config";
 import { ensurePlaceholderTextures } from "../systems/placeholderAssets";
+import { preloadFarmArt } from "../systems/farmArtAssets";
 
-/**
- * Boot 场景：生成程序化占位纹理（无外部资源），随后进入标题场景。
- * 本阶段所有资源均为运行时生成，不依赖真实文件。
- */
+/** Load display art first; generated textures remain available as a fallback. */
 export class BootScene extends Phaser.Scene {
   constructor() {
     super("boot");
+  }
+
+  preload(): void {
+    preloadFarmArt(this);
   }
 
   create(): void {

@@ -129,7 +129,7 @@ export function createFarmActions(deps: FarmActionsDeps): FarmActions {
 
       const def = items.find((i) => i.id === itemId);
       if (!def) return { ok: false, reason: ActionFailReason.UNKNOWN_ITEM };
-      if (def.category !== ItemCategory.Crop || def.sellPrice === undefined) {
+      if ((def.category !== ItemCategory.Crop && def.category !== ItemCategory.Material) || def.sellPrice === undefined) {
         return { ok: false, reason: ActionFailReason.NOT_SELLABLE };
       }
 

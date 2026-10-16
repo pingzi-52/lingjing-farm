@@ -1,8 +1,8 @@
 import { ItemCategory, type ItemDefinition } from "../domain/models/Item";
 
 /**
- * 全物品表（24 项）。
- * 组成：2 工具 + 11 种子 + 11 收获作物。
+ * 全物品表（28 项）。
+ * 组成：2 工具 + 11 种子 + 11 收获作物 + 3 采集材料 + 1 食物。
  * 数值与 src/data/crops.ts 冻结表逐条对齐（T3 会做一致性测试）。
  */
 export const ITEMS: readonly ItemDefinition[] = [
@@ -43,6 +43,11 @@ export const ITEMS: readonly ItemDefinition[] = [
   // ── 冬 · 作物 ───────────────────────────────────
   { id: "snow_flower", name: "雪晶花",   category: ItemCategory.Crop, price: 0, sellPrice: 90, stackable: true, maxStack: 99 },
   { id: "ice_grass",   name: "冰露草",   category: ItemCategory.Crop, price: 0, sellPrice: 55, stackable: true, maxStack: 99 },
+  // ── 林缘采集与烹饪 ──────────────────────────────
+  { id: "branch", name: "树枝", category: ItemCategory.Material, price: 0, sellPrice: 4, stackable: true, maxStack: 99 },
+  { id: "stone", name: "溪石", category: ItemCategory.Material, price: 0, sellPrice: 5, stackable: true, maxStack: 99 },
+  { id: "wild_mushroom", name: "野蘑菇", category: ItemCategory.Material, price: 0, sellPrice: 14, stackable: true, maxStack: 99 },
+  { id: "mushroom_meal", name: "菌菇餐", category: ItemCategory.Special, price: 0, stackable: true, maxStack: 20 },
 ] as const;
 
 export function getItem(id: string): ItemDefinition | undefined {
