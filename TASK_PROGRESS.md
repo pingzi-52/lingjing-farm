@@ -1,12 +1,16 @@
-# 进行中：2026-10-20 全部开发进度上传私有GitHub
+# 当前：全部农场开发进度已上传私有GitHub（2026-10-20）
 
-用户明确要求“上传github”，范围为当前累计源码、美术原图/图集/来源、测试、截图及交接记录。目标已核对：pingzi-52/lingjing-farm为private，当前账号有push权限。当前分支feature/beta-guidance，main保留68da6e0旧快照，不强推、不合并main、不发Release。
+目标：[pingzi-52/lingjing-farm](https://github.com/pingzi-52/lingjing-farm/tree/feature/beta-guidance)，private。最新开发分支feature/beta-guidance，main保持10月16日旧快照68da6e0；未合并main、未建PR、未发Release或部署。
 
-上传前独立验证通过：65个测试文件961项，strict TS+97模块生产构建，diff --check。现有Phaser大包/换行符提示保留。174个未跟踪文件约8MB，最大单图约2MB，未发现真实凭据/私钥；node_modules/dist/env/个人游玩档继续忽略。保留全部既有用户和Claude工作。
+代码/素材/测试/截图/交接完整快照提交 **e7dd46f4216f5807432f7bb690f2b20e59515097** 已成功推送，git ls-remote核对远端SHA与本地完全一致；提交根tree **5260b5329c5a62d371df4787628d61fab6229a94**，726个项目文件，203文件累计更新。包含居民/建筑美术、森林构图与遮挡、HUD/工具反馈、钓鱼与首钓委托、V7旧档迁移和全部原图/来源。当前完成记录在后续文档提交中同步；最终文档HEAD见git log与远端分支。
 
-git-pushing辅助脚本未安装（两技能根搜索无smart_commit.sh），采用可审查的标准Git替代。直连GitHub443失败；读取本机DefaultWebProxy既有路由后命令级重试已成功，不改全局代理/SSL设置。下一步：暂存并审查全部范围→提交→推送feature/beta-guidance→核对远端HEAD/完整tree→记录完成。
+上传前独立验证：65个文件961测试全通过，strict TS+97模块正式构建通过，暂存diff --check通过。原有Phaser大包提示保留；两新增文件只移除末尾空行并保留备份，未改变代码行为/PNG。未发现真实凭据/私钥，无100MB文件；node_modules/dist/env/私人游玩档排除。保留既有用户/Claude工作。
 
-新电脑：git clone --branch feature/beta-guidance https://github.com/pingzi-52/lingjing-farm.git；npm ci；npm run dev -- --host 127.0.0.1 --port 5175 --strictPort。已有克隆先git fetch origin，再git switch --track origin/feature/beta-guidance（已有本地同名分支则git switch后pull --ff-only）。个人浏览器存档不随GitHub源码同步，V7需用更新客户端。
+网络：直连GitHub443失败，按本机DefaultWebProxy既有路由使用命令级http.proxy完成推送，未改全局网络/SSL；首次推送脚本子进程目录错误未上传，已用显式仓库目录和URL正常重试。不强推，不改仓库公开性。git-pushing辅助脚本缺失，使用已审查标准Git替代。
+
+回家继续：git clone --branch feature/beta-guidance https://github.com/pingzi-52/lingjing-farm.git；npm ci；npm run dev -- --host 127.0.0.1 --port 5175 --strictPort。已有克隆fetch后切此分支；网页下载先切分支再Code→Download ZIP。个人浏览器localStorage不会跟随源码同步；V7需更新程序。详见docs/handoff-2026-10-20-github.md。
+
+后续优先统一人物/建筑/环境的像素尺度和调色。钓鱼当前仅2鱼、一次性委托，无图鉴/天气鱼表/饵料。最后正式页刷新复验遇到浏览器工具超时，预览同逻辑刷新通过；实机与单测范围仍以POND_POLISH.md为准。以下保留开发阶段历史记录，不将当时未提交状态当作当前状态。
 
 ---
 

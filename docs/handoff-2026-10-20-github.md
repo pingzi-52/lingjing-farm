@@ -1,6 +1,6 @@
 # 2026-10-20 GitHub开发备份交接
 
-目标私有仓库：[pingzi-52/lingjing-farm](https://github.com/pingzi-52/lingjing-farm)。最新开发分支是 **feature/beta-guidance**，main保留10月16日旧快照。当前文档准备时正在上传，最终结果以TASK_PROGRESS.md顶部与远端分支为准。
+目标私有仓库：[pingzi-52/lingjing-farm](https://github.com/pingzi-52/lingjing-farm)。最新开发分支是 **feature/beta-guidance**，main保留10月16日旧快照。代码快照 `e7dd46f4216f5807432f7bb690f2b20e59515097` 已上传并核对远端SHA一致，根tree `5260b5329c5a62d371df4787628d61fab6229a94`，共726个项目文件。完成记录随后单独提交，最终文档提交见git log。
 
 完整包含当前美术/地图可读性/居民动作、钓鱼、一次性首钓委托、V7兼容存档、来源许可、测试和原始截图。上传前961项测试和严格类型/生产构建通过，既有大包提示保留。不是公开Release，也没有部署线上游戏。
 
