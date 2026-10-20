@@ -7,6 +7,10 @@ import { MAX_GOLD, MemoryStorage, SaveManager } from "../../persistence/save";
 import type { Result } from "../../domain/models/Result";
 import { ItemCategory } from "../../domain/models/Item";
 import { ExplorationService } from "../../domain/services/ExplorationService";
+import { FishingQuestService } from "../../domain/services/FishingQuestService";
+import { FISHING_QUEST } from "../../data/fishingQuest";
+import { FishingRound } from "../../domain/services/FishingRound";
+import { FISHES, FISHING_COST } from "../../data/fishing";
 import { FORAGE_NODES, RECIPES, EXPLORATION_QUESTS, type ExplorationQuestKind, type RecipeId } from "../../data/exploration";
 // ── T4 子阶段1 新增 import ─────────────────────
 import { CropService } from "../../domain/services/CropService";
@@ -33,6 +37,8 @@ export interface GameSession {
   life: DailyLifeService;
   introQuest: IntroQuestService;
   exploration: ExplorationService;
+  fishing: FishingRound;
+  fishingQuest: FishingQuestService;
   economy: EconomyService;
   save: SaveManager;
   // ── T4 子阶段1 新增字段 ────────────────────────
@@ -64,6 +70,11 @@ export interface GameSession {
   completeExplorationQuest(kind: ExplorationQuestKind): Result;
   craftItem(recipe: RecipeId): Result;
   eatMeal(): Result;
+  castFishing(): Result;
+  landFish(): Result<{ itemId: string }>;
+  cancelFishing(): void;
+  acceptFishingQuest(): Result;
+  completeFishingQuest(fishId: string): Result;
 
   /** 读取存档并恢复到领域层；无存档返回 false */
   loadGame(): boolean;
@@ -86,6 +97,8 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
   const life = new DailyLifeService();
   const introQuest = new IntroQuestService();
   const exploration = new ExplorationService();
+  const fishing = new FishingRound();
+  const fishingQuest = new FishingQuestService();
   // Transactions retain service references and preserve the fractional clock tick.
   const explorationTransaction = (operation: () => Result, persist: () => boolean): Result => {
     const before = { inventory: inventory.serialize(), exploration: exploration.serialize(), energy: life.energy, gold: economy.goldValue };
@@ -147,6 +160,8 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
     life,
     introQuest,
     exploration,
+    fishing,
+    fishingQuest,
     economy,
     save,
     // ── T4 子阶段1 新增字段 ────────────────────
@@ -158,8 +173,36 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
     weather,
     actions,
     advanceTime(deltaMs): boolean { return this.life.advance(deltaMs); },
+    castFishing(): Result {
+      const phase = this.fishing.state.phase;
+      if (phase !== "idle" && phase !== "escaped") return { ok: false, reason: "FISHING_ACTIVE" };
+      if (!this.life.canSpend(FISHING_COST)) return { ok: false, reason: "TOO_TIRED" };
+      // Reserve no inventory or energy while waiting, but every possible fish
+      // must fit before starting. Landing checks its actual result again.
+      if (FISHES.some(fish => !this.inventory.hasSpace(fish.id, 1))) return { ok: false, reason: "INVENTORY_FULL" };
+      return this.fishing.cast() ? { ok: true, value: undefined } : { ok: false, reason: "FISHING_ACTIVE" };
+    },
+    landFish(): Result<{ itemId: string }> {
+      const { phase, fishId } = this.fishing.state;
+      if (phase !== "caught" || !FISHES.some(fish => fish.id === fishId) || fishId === null) return { ok: false, reason: "NO_CATCH" };
+      if (!this.life.canSpend(FISHING_COST)) return { ok: false, reason: "TOO_TIRED" };
+      if (!this.inventory.hasSpace(fishId, 1)) return { ok: false, reason: "INVENTORY_FULL" };
+      const result = explorationTransaction(() => {
+        const added = this.inventory.add(fishId, 1);
+        if (!added.ok) return added;
+        if (!this.life.spend(FISHING_COST)) return { ok: false, reason: "TOO_TIRED" };
+        return { ok: true, value: undefined };
+      }, () => this.saveGame());
+      if (!result.ok) return result;
+      // Only persisted fish become claimed. Failed writes retain the round
+      // so the player may retry without another cast or another energy cost.
+      this.fishing.consumeCatch();
+      return { ok: true, value: { itemId: fishId } };
+    },
+    cancelFishing(): void { this.fishing.cancel(); },
     sleep(): DateInfo {
-      // The save schema caps days at one million. Keep every service unchanged
+      this.cancelFishing();
+      // The save schema caps days at one million. Keep persisted services unchanged
       // at that boundary rather than partly advancing into an unsavable day.
       if (this.time.date.day >= 1_000_000) return this.time.date;
       const departingWeather = this.weather.current();
@@ -180,6 +223,7 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
         daily: this.life.serialize(),
         introQuest: this.introQuest.serialize(),
         exploration: this.exploration.serialize(),
+        fishingQuest: this.fishingQuest.serialize(),
       });
     },
     loadGame(): boolean {
@@ -194,7 +238,9 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
       this.life.restore(data.daily);
       this.introQuest.restore(data.introQuest);
       this.exploration.restore(data.exploration, data.day);
+      this.fishingQuest.restore(data.fishingQuest);
       applyRain();
+      this.cancelFishing();
       return true;
     },
     gatherNode(id): Result {
@@ -252,6 +298,30 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
         this.life.recover(25);
         return { ok: true, value: undefined };
       }, () => this.saveGame());
+    },
+    acceptFishingQuest(): Result {
+      const before = this.fishingQuest.serialize();
+      const result = this.fishingQuest.accept();
+      if (!result.ok) return result;
+      if (!this.saveGame()) { this.fishingQuest.restore(before); return { ok: false, reason: "SAVE_FAILED" }; }
+      return result;
+    },
+    completeFishingQuest(fishId): Result {
+      if (this.fishingQuest.state.status !== "active") return { ok: false, reason: "QUEST_NOT_ACTIVE" };
+      if (!FISHES.some(fish => fish.id === fishId)) return { ok: false, reason: "INVALID_FISH" };
+      if (this.inventory.count(fishId) < 1) return { ok: false, reason: "NOT_ENOUGH" };
+      const gold = this.economy.goldValue;
+      if (!Number.isSafeInteger(gold + FISHING_QUEST.reward) || gold + FISHING_QUEST.reward > MAX_GOLD) return { ok: false, reason: "GOLD_LIMIT" };
+      const before = { inventory: this.inventory.serialize(), quest: this.fishingQuest.serialize() };
+      const removed = this.inventory.remove(fishId, 1);
+      if (!removed.ok) return removed;
+      this.economy.setGold(gold + FISHING_QUEST.reward);
+      const completed = this.fishingQuest.complete();
+      if (!completed.ok || !this.saveGame()) {
+        this.inventory.restore(before.inventory); this.economy.setGold(gold); this.fishingQuest.restore(before.quest);
+        return completed.ok ? { ok: false, reason: "SAVE_FAILED" } : completed;
+      }
+      return { ok: true, value: undefined };
     },
     acceptIntroQuest(): Result {
       const before = this.introQuest.serialize();
@@ -357,12 +427,14 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
     },
     // ── T4 子阶段1 新增：newGame（D6） ─────────
     newGame(): void {
+      this.cancelFishing();
       this.economy.setGold(INIT_GOLD);
       this.time.setDay(1);
       this.life.resetMorning();
       this.farming.restore({});
       this.introQuest.newGame();
       this.exploration.newGame();
+      this.fishingQuest.newGame();
       this.chest.restore({ capacity: 24, slots: new Array(24).fill(null) });
       this.inventory.restore({
         capacity: 24,

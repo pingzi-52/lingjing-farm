@@ -15,6 +15,7 @@ export function getItemVisual(itemId: string | null, hasFrame: HasItemFrame): It
   const item = ITEMS_BY_ID.get(itemId);
   if (!item && itemId !== "gold") return { texture: "icon_empty" };
   if (["branch", "stone", "wild_mushroom", "mushroom_meal"].includes(itemId) && hasFrame("farm-forage-v1", itemId)) return { texture: "farm-forage-v1", frame: itemId };
+  if (["silver_crucian", "sun_carp"].includes(itemId) && hasFrame("farm-fish-v1", itemId)) return { texture: "farm-fish-v1", frame: itemId };
   if (hasFrame(ATLAS, itemId)) return { texture: ATLAS, frame: itemId };
   let texture = "icon_empty";
   if (itemId === "gold") texture = "icon_gold";

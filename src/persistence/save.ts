@@ -1,4 +1,4 @@
-import { SAVE_KEY, SAVE_VERSION, type DailyState, type IntroQuestState, type ExplorationState, type SaveData } from "../domain/models/types";
+import { SAVE_KEY, SAVE_VERSION, type DailyState, type IntroQuestState, type ExplorationState, type FishingQuestState, type SaveData } from "../domain/models/types";
 import type { InventoryState } from "../domain/models/Item";
 import type { FarmTileState } from "../domain/models/Crop";
 import { ITEMS } from "../data/items";
@@ -56,6 +56,13 @@ function initialIntroQuest(): IntroQuestState {
   return { status: "available", cropId: null };
 }
 
+function initialFishingQuest(): FishingQuestState { return { status: "available" }; }
+
+function validateFishingQuest(value: unknown): FishingQuestState | null {
+  if (!object(value) || !keys(value, ["status"]) || (value.status !== "available" && value.status !== "active" && value.status !== "completed")) return null;
+  return { status: value.status };
+}
+
 function initialExploration(day: number): ExplorationState {
   return { forageDay: day, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false };
 }
@@ -103,20 +110,22 @@ function validate(data: unknown): SaveData | null {
   if (!object(data) || !integer(data.gold, 0, MAX_GOLD) || !integer(data.day, 1, MAX_DAY)) return null;
   if (data.version === 1) {
     if (!keys(data, ["version", "gold", "day"])) return null;
-    return { version: SAVE_VERSION, gold: data.gold, day: data.day, farming: [], inventory: initialInventory(), chest: emptyContainer(), daily: initialDaily(), introQuest: initialIntroQuest(), exploration: initialExploration(data.day) };
+    return { version: SAVE_VERSION, gold: data.gold, day: data.day, farming: [], inventory: initialInventory(), chest: emptyContainer(), daily: initialDaily(), introQuest: initialIntroQuest(), exploration: initialExploration(data.day), fishingQuest: initialFishingQuest() };
   }
-  if (data.version !== 2 && data.version !== 3 && data.version !== 4 && data.version !== 5 && data.version !== SAVE_VERSION) return null;
+  if (data.version !== 2 && data.version !== 3 && data.version !== 4 && data.version !== 5 && data.version !== 6 && data.version !== SAVE_VERSION) return null;
   const previousVersion = data.version === 2;
   const hasDaily = data.version >= 4;
   const hasIntroQuest = data.version >= 5;
-  const hasExploration = data.version === SAVE_VERSION;
-  if (!keys(data, ["version", "gold", "day", "inventory", "farming", ...(previousVersion ? [] : ["chest"]), ...(hasDaily ? ["daily"] : []), ...(hasIntroQuest ? ["introQuest"] : []), ...(hasExploration ? ["exploration"] : [])])) return null;
+  const hasExploration = data.version >= 6;
+  const hasFishingQuest = data.version === 7;
+  if (!keys(data, ["version", "gold", "day", "inventory", "farming", ...(previousVersion ? [] : ["chest"]), ...(hasDaily ? ["daily"] : []), ...(hasIntroQuest ? ["introQuest"] : []), ...(hasExploration ? ["exploration"] : []), ...(hasFishingQuest ? ["fishingQuest"] : [])])) return null;
   const inventory = validateContainer(data.inventory);
   const chest = previousVersion ? emptyContainer() : validateContainer(data.chest);
   const daily = hasDaily ? validateDaily(data.daily) : initialDaily();
   const introQuest = hasIntroQuest ? validateIntroQuest(data.introQuest) : initialIntroQuest();
   const exploration = hasExploration ? validateExploration(data.exploration, data.day) : initialExploration(data.day);
-  if (!inventory || !chest || !daily || !introQuest || !exploration) return null;
+  const fishingQuest = hasFishingQuest ? validateFishingQuest(data.fishingQuest) : initialFishingQuest();
+  if (!inventory || !chest || !daily || !introQuest || !exploration || !fishingQuest) return null;
   if (!Array.isArray(data.farming) || data.farming.length > FARM01.length * FARM01[0].length) return null;
   const farming: FarmTileState[] = [];
   const seen = new Set<string>();
@@ -139,7 +148,7 @@ function validate(data: unknown): SaveData | null {
     }
     farming.push(next);
   }
-  return { version: SAVE_VERSION, gold: data.gold, day: data.day, inventory, chest, farming, daily, introQuest, exploration };
+  return { version: SAVE_VERSION, gold: data.gold, day: data.day, inventory, chest, farming, daily, introQuest, exploration, fishingQuest };
 }
 
 function parse(raw: string | null): SaveData | null {
@@ -152,11 +161,11 @@ export class SaveManager {
   constructor(private readonly storage: SaveStorage) {}
 
   /** Compatibility for old callers supplying only gold/day; new sessions supply all fields. */
-  save(data: Pick<SaveData, "gold" | "day"> & Partial<Pick<SaveData, "inventory" | "farming" | "chest" | "daily" | "introQuest" | "exploration">>): boolean {
+  save(data: Pick<SaveData, "gold" | "day"> & Partial<Pick<SaveData, "inventory" | "farming" | "chest" | "daily" | "introQuest" | "exploration" | "fishingQuest">>): boolean {
     try {
       if ((data.inventory === undefined) !== (data.farming === undefined)) return false;
       if (data.chest !== undefined && data.inventory === undefined) return false;
-      const payload = validate({ ...data, version: SAVE_VERSION, inventory: data.inventory ?? initialInventory(), farming: data.farming ?? [], chest: data.chest ?? emptyContainer(), daily: data.daily === undefined ? initialDaily() : data.daily, introQuest: data.introQuest === undefined ? initialIntroQuest() : data.introQuest, exploration: data.exploration === undefined ? initialExploration(data.day) : data.exploration });
+      const payload = validate({ ...data, version: SAVE_VERSION, inventory: data.inventory ?? initialInventory(), farming: data.farming ?? [], chest: data.chest ?? emptyContainer(), daily: data.daily === undefined ? initialDaily() : data.daily, introQuest: data.introQuest === undefined ? initialIntroQuest() : data.introQuest, exploration: data.exploration === undefined ? initialExploration(data.day) : data.exploration, fishingQuest: data.fishingQuest === undefined ? initialFishingQuest() : data.fishingQuest });
       if (!payload) return false;
       const encoded = JSON.stringify(payload);
       if (!bounded(encoded)) return false;

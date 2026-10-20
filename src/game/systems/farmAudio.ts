@@ -1,6 +1,6 @@
 import { loadAudioPreferences, saveAudioPreferences, validateAudioPreferences, type AudioPreferences, type AudioPreferenceStorage } from "./audioPreferences";
 
-export type AudioCue = "hoe" | "water" | "plant" | "harvest" | "coin" | "confirm" | "error" | "door" | "sleep" | "step";
+export type AudioCue = "hoe" | "water" | "plant" | "harvest" | "coin" | "confirm" | "error" | "door" | "sleep" | "step" | "fish_bite" | "fish_reel" | "fish_catch";
 export type AudioPreferencePatch = Partial<Omit<AudioPreferences, "version">>;
 export interface AudioDocument {
   readonly hidden: boolean;
@@ -30,6 +30,10 @@ const CUES: Record<AudioCue, CueSpec> = {
   door: { duration: 0.22, level: 0.14, filter: 380 },
   sleep: { duration: 0.65, level: 0.045, filter: 700, pitch: 260, endPitch: 145, wave: "sine" },
   step: { duration: 0.075, level: 0.075, filter: 180 },
+  // Modal interaction cues remain available while the world is paused.
+  fish_bite: { duration: 0.21, level: 0.065, filter: 1500, pitch: 680, endPitch: 910, wave: "triangle" },
+  fish_reel: { duration: 0.13, level: 0.055, filter: 1050, pitch: 380, endPitch: 570, wave: "sine" },
+  fish_catch: { duration: 0.4, level: 0.065, filter: 1500, pitch: 520, endPitch: 1040, wave: "triangle" },
 };
 
 function browserStorage(): AudioPreferenceStorage | undefined {

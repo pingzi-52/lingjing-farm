@@ -108,17 +108,17 @@ describe("exploration transactions", () => {
     const {session:s,storage}=setup();s.time.setDay(8);s.economy.setGold(777);s.inventory.add("dew_radish_seed",4);s.chest.add("morning_bean",3);
     s.farming.restore({"8_12":{id:"8_12",tilled:true,watered:true,crop:{cropId:"dew_radish",growthDay:2,harvestedCount:0}}});
     s.life.restore({minute:680,energy:37});s.introQuest.accept("spring");expect(s.saveGame()).toBe(true);
-    const current=JSON.parse(storage.get(SAVE_KEY)!);delete current.exploration;current.version=5;const raw=JSON.stringify(current);storage.set(SAVE_KEY,raw);
+    const current=JSON.parse(storage.get(SAVE_KEY)!);delete current.exploration;delete current.fishingQuest;current.version=5;const raw=JSON.stringify(current);storage.set(SAVE_KEY,raw);
     const loaded=initGameSession(new SaveManager(storage));expect(loaded.loadGame()).toBe(true);
     expect(loaded.inventory.serialize()).toEqual(current.inventory);expect(loaded.chest.serialize()).toEqual(current.chest);expect(Object.values(loaded.farming.serialize())).toEqual(current.farming);
     expect(loaded.life.serialize()).toEqual(current.daily);expect(loaded.introQuest.state).toEqual(current.introQuest);expect(loaded.economy.goldValue).toBe(777);
     expect(loaded.exploration.state).toEqual({forageDay:8,picked:[],forestQuest:"available",carpenterQuest:"available",lanternBuilt:false});expect(storage.get(SAVE_KEY)).toBe(raw);
-    expect(loaded.gatherNode("wood_a").ok).toBe(true);expect(JSON.parse(storage.get(SAVE_KEY)!).version).toBe(6);
+    expect(loaded.gatherNode("wood_a").ok).toBe(true);expect(JSON.parse(storage.get(SAVE_KEY)!).version).toBe(7);
   });
-  it("normalizes stale daily depletion on load but protects future version 7 unchanged", () => {
+  it("normalizes stale daily depletion on load but protects future version 8 unchanged", () => {
     const {session:s,storage}=setup();s.gatherNode("wood_a");s.saveGame();const data=JSON.parse(storage.get(SAVE_KEY)!);data.day=4;storage.set(SAVE_KEY,JSON.stringify(data));
     expect(s.loadGame()).toBe(true);expect(s.exploration.state.forageDay).toBe(4);expect(s.exploration.state.picked).toEqual([]);
-    data.version=7;const raw=JSON.stringify(data);storage.set(SAVE_KEY,raw);const before=snapshot(s);
+    data.version=8;const raw=JSON.stringify(data);storage.set(SAVE_KEY,raw);const before=snapshot(s);
     expect(s.loadGame()).toBe(false);expect(snapshot(s)).toEqual(before);expect(s.saveGame()).toBe(false);expect(storage.get(SAVE_KEY)).toBe(raw);
     expect(s.gatherNode("wood_a")).toEqual({ok:false,reason:"SAVE_FAILED"});expect(snapshot(s)).toEqual(before);
   });

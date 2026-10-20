@@ -86,6 +86,9 @@ export class MerchantDialogue {
     const intro = el("div", "merchant-intro");
     const portrait = el("img", "merchant-portrait"); portrait.alt = "禾木，戴绿帽与赭红围巾的杂货商";
     portrait.src = `${import.meta.env.BASE_URL}farm-assets/original-addons/v5/merchant-v1.png`;
+    if (this.scene.textures.exists("farm-residents-motion-v1") && this.scene.textures.get("farm-residents-motion-v1").has("merchant_idle")) {
+      portrait.src = this.scene.textures.getBase64("farm-residents-motion-v1", "merchant_idle");
+    }
     const speech = el("div", "merchant-speech");
     speech.append(el("small", "", this.mode === "journal" ? "初来林缘 · 禾木的委托" : "种子与日常，总会慢慢长好。"));
     const greeting = this.mode === "journal" ? "从一小块田开始，先试着种出自己的第一份收成。"

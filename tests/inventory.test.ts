@@ -146,7 +146,7 @@ describe("InventoryService - add itemId 隔离", () => {
 describe("InventoryService - add 空间不足", () => {
   it("满包 24 格 → INVENTORY_FULL", () => {
     // 前 24 个原有物品逐个占一格塞满，新增材料不影响固定容量。
-    expect(ITEMS.length).toBe(28);
+    expect(ITEMS.length).toBe(30);
     for (const it of ITEMS.slice(0, 24)) {
       const r = inv.add(it.id, it.stackable ? 99 : 1);
       expect(r.ok).toBe(true);
@@ -295,14 +295,16 @@ describe("InventoryService - serialize / restore", () => {
 // ITEMS 数据完整性（与 T1 crops.ts 一致性）
 // ────────────────────────────────────────────────
 describe("ITEMS 数据完整性", () => {
-  it("总计 28 项（保留 24 项原物品，新增 3 材料与 1 食物）", () => {
-    expect(ITEMS.length).toBe(28);
+  it("总计30项（24原物品、3采集材料、1食物、2鱼）", () => {
+    expect(ITEMS.length).toBe(30);
     const tools = ITEMS.filter((i) => i.category === ItemCategory.Tool);
     const seeds = ITEMS.filter((i) => i.category === ItemCategory.Seed);
     const crops = ITEMS.filter((i) => i.category === ItemCategory.Crop);
     expect(tools.length).toBe(2);
     expect(seeds.length).toBe(11);
     expect(crops.length).toBe(11);
+    expect(ITEMS.filter(i=>i.category===ItemCategory.Material)).toHaveLength(5);
+    expect(ITEMS.filter(i=>["silver_crucian","sun_carp"].includes(i.id)).map(i=>i.id)).toEqual(["silver_crucian","sun_carp"]);
   });
 
   it("所有 id 全局唯一", () => {

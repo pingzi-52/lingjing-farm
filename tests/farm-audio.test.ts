@@ -59,6 +59,21 @@ function setup() {
 }
 
 describe("gesture-owned synthesized farm sound", () => {
+  it("plays distinct bounded fishing interaction tones through modal pause but honors hidden and mute", async () => {
+    const t = setup(); await t.unlock(); t.audio.setEnvironment("farm", "sunny", 600); t.audio.setPaused(true);
+    const before = t.context.sources.length;
+    for(const cue of ["fish_bite", "fish_reel", "fish_catch"] as const) { t.tick(1000); t.audio.play(cue); }
+    const tones = t.context.sources.slice(before);
+    expect(tones).toHaveLength(3);
+    expect(new Set(tones.map(source => source.frequency.events[0][1])).size).toBe(3);
+    for(const tone of tones) { expect(tone.kind).toBe("tone"); expect(tone.stops[0]-tone.starts[0][0]).toBeLessThan(0.5); }
+    t.doc.hidden=true; t.doc.emit("visibilitychange"); t.tick(1000); t.audio.play("fish_bite");
+    expect(t.context.sources).toHaveLength(before+3);
+    expect(tones.every(tone=>tone.disconnected)).toBe(true);
+    t.doc.hidden=false; t.doc.emit("visibilitychange"); t.audio.updateSettings({muted:true});
+    t.tick(1000); t.audio.play("fish_catch"); expect(t.context.sources).toHaveLength(before+3);
+    t.audio.destroy();
+  });
   it("never constructs a context before a trusted gesture and installs listeners once", async () => {
     const t = setup(); t.audio.install(); t.audio.install(); t.audio.play("confirm"); t.audio.setEnvironment("farm", "rain", 600);
     expect(t.constructed()).toBe(0); expect(t.doc.count()).toBe(3);

@@ -11,8 +11,8 @@ const questDefault = { status: "available", cropId: null };
 describe("V4 daily state persistence", () => {
   it("round-trips all fields with daily state", () => {
     const storage = new MemoryStorage(); const save = new SaveManager(storage); const data = v4();
-    expect(save.save(data)).toBe(true); expect(save.load()).toEqual({ ...data, version: SAVE_VERSION, introQuest: questDefault, exploration: { forageDay: 6, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
-    expect(JSON.parse(storage.get(SAVE_KEY)!)).toEqual({ ...data, version: SAVE_VERSION, introQuest: questDefault, exploration: { forageDay: 6, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
+    expect(save.save(data)).toBe(true); expect(save.load()).toEqual({ ...data, version: SAVE_VERSION, fishingQuest: { status: "available" }, introQuest: questDefault, exploration: { forageDay: 6, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
+    expect(JSON.parse(storage.get(SAVE_KEY)!)).toEqual({ ...data, version: SAVE_VERSION, fishingQuest: { status: "available" }, introQuest: questDefault, exploration: { forageDay: 6, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
   });
 
   it.each([{ minute: 360, energy: 100 }, { minute: 1320, energy: 0 }, { minute: 1310, energy: 1 }, { minute: 370, energy: 99 }])("accepts exact daily boundaries $minute/$energy", daily => {
@@ -22,7 +22,7 @@ describe("V4 daily state persistence", () => {
   it("keeps compatible gold/day-only and full old-field save callers", () => {
     const save = new SaveManager(new MemoryStorage());
     expect(save.save({ gold: 50, day: 2 })).toBe(true); expect(save.load()?.daily).toEqual({ minute: 360, energy: 100 });
-    expect(save.save(v3())).toBe(true); expect(save.load()).toEqual({ ...v3(), version: SAVE_VERSION, daily: { minute: 360, energy: 100 }, introQuest: questDefault, exploration: { forageDay: 6, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
+    expect(save.save(v3())).toBe(true); expect(save.load()).toEqual({ ...v3(), version: SAVE_VERSION, fishingQuest: { status: "available" }, daily: { minute: 360, energy: 100 }, introQuest: questDefault, exploration: { forageDay: 6, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
     expect(save.save({ gold: 60, day: 3, daily: { minute: 600, energy: 80 } })).toBe(true);
     expect(save.load()?.daily).toEqual({ minute: 600, energy: 80 });
   });
@@ -92,6 +92,6 @@ describe("V1/V2/V3 strict migration to V4", () => {
     storage.set(SAVE_KEY, future); storage.set(SAVE_BACKUP_KEY, backup);
     expect(save.load()).toBeNull(); expect(save.save(v4())).toBe(false); expect(storage.get(SAVE_KEY)).toBe(future); expect(storage.get(SAVE_BACKUP_KEY)).toBe(backup);
     expect(save.restoreBackup()).toBe(true); expect(storage.get(SAVE_RECOVERY_KEY)).toBe(future); expect(storage.get(SAVE_KEY)).toBe(backup);
-    expect(save.load()).toEqual({ ...v3(), version: SAVE_VERSION, daily: { minute: 360, energy: 100 }, introQuest: questDefault, exploration: { forageDay: 6, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
+    expect(save.load()).toEqual({ ...v3(), version: SAVE_VERSION, fishingQuest: { status: "available" }, daily: { minute: 360, energy: 100 }, introQuest: questDefault, exploration: { forageDay: 6, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
   });
 });

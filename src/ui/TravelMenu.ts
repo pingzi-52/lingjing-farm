@@ -1,30 +1,90 @@
 import type Phaser from "phaser";
+import { FORAGE_NODES } from "../data/exploration";
+import type { AreaId } from "../data/maps/areaConnections";
 import { getGameSession } from "../game/systems/GameSession";
 import { PausePanel, node } from "./PausePanel";
+import { getQuestGuidance, type GuidanceStatus } from "./questGuidance";
+import { getFishingQuestGuidance } from "./fishingQuestGuidance";
+import "../styles/quest-journal.css";
+
+const AREAS = [
+  { id: "forest", name: "林缘森林" },
+  { id: "farm", name: "林缘农场" },
+  { id: "town", name: "溪桥镇" },
+] as const;
+const STATUS: Record<GuidanceStatus, string> = {
+  available: "尚未接取", active: "进行中", ready: "材料齐了", completed: "已完成",
+};
+
+/** Read-only route and quest journal. All quest actions remain with the residents. */
 export class TravelMenu extends PausePanel {
   constructor(scene: Phaser.Scene) { super(scene, "区域与委托", "KeyL"); }
+
   open(): void {
     if (!this.begin()) return;
-    const s = getGameSession(), state = s.exploration.state, panel = this.panel("区域手记 · 委托");
-    panel.append(node("p", "farm-menu-note", "林缘森林 ← 林缘农场 → 溪桥镇"),
-      node("p", "farm-menu-note", "沿农场西侧林间路进入森林，沿东侧乡道前往小镇；顺来路可回农场。"));
-    if (this.scene.sys.settings.key === "home") {
-      panel.append(node("p", "farm-menu-note", "你在林缘小屋：先从下方门口出屋，再沿农场路口步行。"));
+    const session = getGameSession(), currentArea = this.scene.sys.settings.key;
+    const panel = this.panel("区域手记 · 委托");
+    panel.classList.add("quest-journal");
+    panel.style.overflowY = "hidden";
+
+    const body = node("div", "farm-menu-body quest-journal-body");
+    const route = node("div", "quest-journal-route");
+    route.setAttribute("aria-label", "区域方位：森林在农场西侧，小镇在农场东侧");
+    AREAS.forEach((area, index) => {
+      if (index) route.append(node("span", "quest-journal-arrow", index === 1 ? "←" : "→"));
+      const label = node("span", "quest-journal-area", area.name);
+      if (currentArea === area.id) {
+        label.classList.add("is-current");
+        label.append(node("small", "", "你在这里"));
+      }
+      route.append(label);
+    });
+    body.append(route);
+    if (currentArea === "home") {
+      body.append(node("p", "quest-journal-home", "你在林缘小屋 · 从下方门口出屋后，沿农场左右道路步行。"));
     }
-    for (const area of [
-      { id: "farm", name: "林缘农场", detail: "种田、禾木杂货铺、农舍与储物箱" },
-      { id: "forest", name: "林缘森林", detail: `岚的采集委托 · 今日已采 ${state.picked.length}/9 处` },
-      { id: "town", name: "溪桥镇", detail: "阿榆的工坊 · 修缮委托与提灯配方" },
-    ] as const) {
-      const row = node("div", "farm-market-row"), detail = node("div", "farm-market-detail");
-      const here = this.scene.sys.settings.key === area.id;
-      detail.append(node("strong", "", `${area.name}${here ? " · 你在这里" : ""}`), node("small", "", area.detail));
-      row.append(detail);
-      panel.append(row);
+
+    for (const areaId of ["farm", "forest", "town"] as const satisfies readonly AreaId[]) {
+      const quest = getQuestGuidance(session, areaId);
+      const card = node("article", `quest-journal-card is-${quest.status}`);
+      card.dataset.questArea = areaId;
+      const heading = node("div", "quest-journal-card-heading");
+      const title = node("h3", "", quest.title);
+      const place = AREAS.find(area => area.id === quest.area)!;
+      heading.append(title, node("span", "quest-journal-resident", `${place.name} · ${quest.resident}`),
+        node("span", "quest-journal-badge", STATUS[quest.status]));
+      card.append(heading);
+
+      if (quest.requirements.length && quest.status !== "completed") {
+        const materials = node("div", "quest-journal-materials");
+        materials.setAttribute("aria-label", "随身材料与交付数量");
+        materials.append(node("span", "", "随身"));
+        for (const requirement of quest.requirements) {
+          materials.append(node("span", requirement.have >= requirement.need ? "is-enough" : "",
+            `${requirement.name} ${requirement.have}/${requirement.need}`));
+        }
+        card.append(materials);
+      } else {
+        card.append(node("p", "quest-journal-progress", quest.status === "completed" ? "委托已完成 · 报酬已领取" : quest.progress));
+      }
+      card.append(node("p", "quest-journal-next", quest.nextStep));
+      if (areaId === "farm" && quest.status !== "completed") {
+        card.append(node("p", "quest-journal-forage", "田边未见禾木时，可在农场按 Q 查看便笺。"));
+      }
+      if (areaId === "forest") {
+        card.append(node("p", "quest-journal-forage",
+          `今日已采 ${session.exploration.state.picked.length}/${FORAGE_NODES.length} 处 · 睡一觉后恢复`));
+      }
+      body.append(card);
     }
-    const status = (value: string) => ({ available: "尚未接取", active: "进行中", completed: "已完成" }[value]);
-    panel.append(node("p", "farm-menu-note", `委托：首份收成 ${status(s.introQuest.state.status)} · 林间馈赠 ${status(state.forestQuest)} · 工坊修缮 ${status(state.carpenterQuest)}`),
-      node("p", "farm-menu-status", "L / Esc 收起手记 · 居民身边 E 接取和交付 · K 制作"));
+    const fishing=getFishingQuestGuidance(session);
+    const fishingCard=node("article",`quest-journal-card is-${fishing.status}`);
+    fishingCard.dataset.questArea="pond";
+    const heading=node("div","quest-journal-card-heading");
+    heading.append(node("h3","",fishing.title),node("span","quest-journal-resident","农场东南 · 池边便笺"),node("span","quest-journal-badge",STATUS[fishing.status]));
+    fishingCard.append(heading,node("p","quest-journal-next",fishing.nextStep));
+    body.append(fishingCard);
+    panel.append(body, node("p", "quest-journal-footer", "材料只计随身，木箱物品先取出 · L / Esc 收起"));
     this.show(panel);
   }
 }

@@ -1,8 +1,8 @@
 import { ItemCategory, type ItemDefinition } from "../domain/models/Item";
 
 /**
- * 全物品表（28 项）。
- * 组成：2 工具 + 11 种子 + 11 收获作物 + 3 采集材料 + 1 食物。
+ * 全物品表（30 项）。
+ * 组成：2 工具 + 11 种子 + 11 收获作物 + 3 采集材料 + 1 食物 + 2 鱼。
  * 数值与 src/data/crops.ts 冻结表逐条对齐（T3 会做一致性测试）。
  */
 export const ITEMS: readonly ItemDefinition[] = [
@@ -48,6 +48,9 @@ export const ITEMS: readonly ItemDefinition[] = [
   { id: "stone", name: "溪石", category: ItemCategory.Material, price: 0, sellPrice: 5, stackable: true, maxStack: 99 },
   { id: "wild_mushroom", name: "野蘑菇", category: ItemCategory.Material, price: 0, sellPrice: 14, stackable: true, maxStack: 99 },
   { id: "mushroom_meal", name: "菌菇餐", category: ItemCategory.Special, price: 0, stackable: true, maxStack: 20 },
+  // ── 池塘鱼获 ────────────────────────────────────
+  { id: "silver_crucian", name: "银鳞鲫", category: ItemCategory.Material, price: 0, sellPrice: 24, stackable: true, maxStack: 99 },
+  { id: "sun_carp", name: "日纹鲤", category: ItemCategory.Material, price: 0, sellPrice: 40, stackable: true, maxStack: 99 },
 ] as const;
 
 export function getItem(id: string): ItemDefinition | undefined {

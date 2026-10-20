@@ -94,3 +94,7 @@ body {
 .merchant-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .merchant-actions button:first-child { background: #dbe1ba; border-color: #8d985c; }
 .merchant-status { max-width: 100%; }
+
+/* Keep the full fixed-resolution world visible inside narrow desktop panels. */
+#game-root { width:512px; max-width:calc(100vw - 16px); flex-shrink:0; }
+#game-root > canvas { display:block; width:100% !important; height:auto !important; }

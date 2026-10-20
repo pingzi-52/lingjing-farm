@@ -20,7 +20,6 @@ import { chooseFarmhousePlot, type FarmhousePlot } from "../systems/farmhousePlo
 import { chooseMerchantPlot } from "../systems/merchantPlot";
 import { MerchantResident } from "../systems/merchantResident";
 import { MerchantDialogue } from "../../ui/MerchantDialogue";
-import { getCrop } from "../../data/crops";
 import { getItemVisual } from "../systems/itemVisual";
 import { getFarmAudio } from "../systems/farmAudio";
 import { AudioSettingsMenu } from "../../ui/AudioSettingsMenu";
@@ -28,6 +27,13 @@ import { CraftingMenu } from "../../ui/CraftingMenu";
 import { TravelMenu } from "../../ui/TravelMenu";
 import { openAreaExits, areaExits, arrivalFrom, type AreaId } from "../../data/maps/areaConnections";
 import { AreaPassage } from "../systems/areaPassage";
+import { getQuestGuidance } from "../../ui/questGuidance";
+import { addWoodPanel } from "../../ui/woodPanel";
+import { ActiveNotice } from "../systems/activeNotice";
+import { bindToolShortcut } from "../systems/toolShortcut";
+import { FishingPanel } from "../../ui/FishingPanel";
+import { pondCastTarget, type FishingSpot } from "../systems/fishingSpot";
+import { PondLife } from "../systems/pondLife";
 
 const TILE_TEXTURE: Record<TileDef["key"], string> = {
   grass: "tile_grass",
@@ -93,7 +99,7 @@ export class FarmScene extends Phaser.Scene {
   private clockPaused = true;
   private lastLifeKey = "";
   private readonly onVisibility = (): void => {
-    if (document.hidden) { this.clockPaused = true; this.player?.sprite.setVelocity(0, 0); }
+    if (document.hidden) { this.clockPaused = true; this.player?.sprite.setVelocity(0, 0); this.hideGuidance(); }
   };
   private menu!: FarmMenu;
   private audioSettings!: AudioSettingsMenu;
@@ -116,6 +122,11 @@ export class FarmScene extends Phaser.Scene {
   private housePlot: FarmhousePlot | null = null;
   private houseReserved: string[] = [];
   private contextHint!: Phaser.GameObjects.Text;
+  private readonly notice = new ActiveNotice();
+  private detachToolShortcut?: () => void;
+  private fishingPanel!: FishingPanel;
+  private pondLife!: PondLife;
+  private fishingSpot: FishingSpot | null = null;
   private lastGold = -1;
   private lastDay = 0;
 
@@ -162,6 +173,10 @@ export class FarmScene extends Phaser.Scene {
   preload(): void {
     FarmEnvironment.preload(this);
     FarmWater.preload(this);
+    if (!this.textures.exists("farm-fish-v1")) {
+      const fish = `${import.meta.env.BASE_URL}farm-assets/original-addons/v9/fish-icons-v1`;
+      this.load.atlas("farm-fish-v1", `${fish}.png`, `${fish}.json`);
+    }
     const base = `${import.meta.env.BASE_URL}farm-assets/original-addons/`;
     if (!this.textures.exists("farmhouse-main")) this.load.image("farmhouse-main", `${base}v2/farmhouse-v1.png`);
     if (!this.textures.exists("farm-merchant-v1")) this.load.image("farm-merchant-v1", `${base}v5/merchant-v1.png`);
@@ -173,6 +188,7 @@ export class FarmScene extends Phaser.Scene {
   create(): void {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
     this.enteringHome = false;
+    this.notice.clear();
     this.physics.world.resume();
     this.input.enabled = true;
     this.input.keyboard!.enabled = true;
@@ -253,7 +269,7 @@ export class FarmScene extends Phaser.Scene {
       }
     }
 
-    this.environment.renderDetails(world);
+    this.environment.renderDetails(world, this.houseReserved);
     this.environment.applySeason(this.season);
     this.pond.applySeason(this.season);
     this.soilSurface.applySeason(this.season);
@@ -332,13 +348,8 @@ export class FarmScene extends Phaser.Scene {
     cam.startFollow(this.player.sprite, true, 0.1, 0.1);
     cam.setZoom(1).setRoundPixels(true);
 
-    // P3：顶部左木质背板（金币 + 季节日期），不随摄像机滚动
-    this.add
-      .image(0, 0, "panel_wide")
-      .setOrigin(0, 0)
-      .setScrollFactor(0)
-      .setDepth(99)
-      .setPosition(8, 8).setDisplaySize(204, 58);
+    // Keep pixel borders at native size when the board expands.
+    addWoodPanel(this, 8, 8, 204, 58, 99);
 
     // HUD：金币图标 + 文本（固定在屏幕上，不随摄像机滚动）
     const goldVisual = getItemVisual("gold", this.hasVisualFrame);
@@ -363,12 +374,7 @@ export class FarmScene extends Phaser.Scene {
     this.energyBar = this.add.rectangle(18, 56, 168, 3, 0x8da358)
       .setOrigin(0, 0.5).setScrollFactor(0).setDepth(101);
     // T4-3：右上角显示当前选中物品（P3：木质背板 + 图标 + 名称）
-    this.add
-      .image(0, 0, "panel_wide")
-      .setOrigin(1, 0)
-      .setScrollFactor(0)
-      .setDepth(99)
-      .setPosition(this.scale.width - 8, 8);
+    addWoodPanel(this, this.scale.width - 162, 8, 154, 34, 99);
     this.selectedNameText = this.add
       .text(this.scale.width - 16, 13, "", {
         fontFamily: "monospace",
@@ -388,10 +394,10 @@ export class FarmScene extends Phaser.Scene {
 
     // P3：操作提示上移至快捷栏之上（快捷栏贴底，二者留 4px 间隙不叠压）
     this.add
-      .text(12, this.scale.height - 52, "WASD 移动 · 左键使用 · E 交互 · Q 任务 · B 集市 · I 背包 · M 声音", {
+      .text(12, this.scale.height - 52, "WASD 移动 · 左键/空格使用 · E 交互 · Q 任务 · B 集市 · I 背包 · M 声音", {
         fontFamily: "monospace",
         fontSize: "10px",
-        color: "#cfe3c5",
+        color: "#f0dfb9",
         backgroundColor: "#10181299",
         padding: { x: 8, y: 4 },
       })
@@ -407,6 +413,9 @@ export class FarmScene extends Phaser.Scene {
     this.audioSettings = new AudioSettingsMenu(this);
     this.crafting = new CraftingMenu(this);
     this.travel = new TravelMenu(this);
+    this.fishingSpot = null;
+    this.fishingPanel = new FishingPanel(this);
+    this.pondLife = new PondLife(this,world);
     this.dialogue = new MerchantDialogue(this, () => this.menu.open("market"),
       () => this.merchant?.near(this.player.x, this.player.y) ?? false, () => this.merchant === null);
     this.questHint = this.add.text(12, 86, "", {
@@ -415,6 +424,7 @@ export class FarmScene extends Phaser.Scene {
     }).setScrollFactor(0).setDepth(107);
     this.contextHint = this.add.text(this.scale.width / 2, this.scale.height - 76, "", {
       fontFamily: "monospace", fontSize: "12px", color: "#f2dfaa", backgroundColor: "#302e1c",
+      wordWrap: { width: this.scale.width - 36 }, align: "center",
     }).setOrigin(0.5).setScrollFactor(0).setDepth(108);
 
     // 交互：床睡觉 / 回标题
@@ -430,6 +440,12 @@ export class FarmScene extends Phaser.Scene {
     k.on("keydown-M", () => { if (!this.busy()) this.audioSettings.open(); });
     k.on("keydown-K", () => { if (!this.busy()) this.crafting.open(); });
     k.on("keydown-L", () => { if (!this.busy()) this.travel.open(); });
+    k.on("keydown-F", (event: KeyboardEvent) => {
+      if (event.repeat || this.busy() || document.hidden) return;
+      const target=pondCastTarget(this.world,this.player);
+      if (!target) {this.toast("走近农场池塘，在岸边按 F 下竿");return;}
+      this.fishingSpot=target;this.fishingPanel.open();
+    });
 
     // T4-3：数字键 1-8 → 快捷栏选择
     for (let i = 0; i < NUM_KEYS.length; i++) {
@@ -438,6 +454,7 @@ export class FarmScene extends Phaser.Scene {
 
     // T4-3：鼠标左键使用当前选中物品
     this.input.on("pointerdown", this.onPointerDown, this);
+    this.detachToolShortcut = bindToolShortcut(k, () => !this.busy() && !document.hidden, () => this.onPointerDown());
 
     this.saveCurrent();
 
@@ -445,13 +462,13 @@ export class FarmScene extends Phaser.Scene {
     this.lastDay = session.time.date.day;
     this.updateHud();
     this.passage = new AreaPassage(this, "farm", world, this.player.sprite,
-      () => this.saveCurrent(), () => { this.enteringHome = true; },
+      () => this.saveCurrent(), () => { this.enteringHome = true; this.hideGuidance(); },
       () => this.toast("保存失败，仍留在农场；请稍后重试路口"), this.houseReserved);
     this.passage.syncCultivated(Object.keys(session.farming.serialize()));
   }
 
   private busy(): boolean {
-    return this.enteringHome || !!(this.menu?.isOpen || this.dialogue?.isOpen || this.audioSettings?.isOpen || this.crafting?.isOpen || this.travel?.isOpen);
+    return this.enteringHome || !!(this.menu?.isOpen || this.dialogue?.isOpen || this.audioSettings?.isOpen || this.crafting?.isOpen || this.travel?.isOpen || this.fishingPanel?.isOpen);
   }
 
   private updateLantern(): void {
@@ -505,7 +522,7 @@ export class FarmScene extends Phaser.Scene {
         fontFamily: "monospace", fontSize: "8px", color: "#ead8aa", stroke: "#443422", strokeThickness: 2,
       }).setScrollFactor(0).setDepth(102);
       this.hotbarCounts.push(this.add.text(x + 13, y + 13, "", {
-        fontFamily: "monospace", fontSize: "9px", color: "#fff0c7", stroke: "#443422", strokeThickness: 2,
+        fontFamily: "monospace", fontSize: "10px", color: "#fff0c7", stroke: "#443422", strokeThickness: 2,
       }).setOrigin(1, 1).setScrollFactor(0).setDepth(102));
     }
 
@@ -788,25 +805,7 @@ export class FarmScene extends Phaser.Scene {
   }
 
   private toast(text: string): void {
-    const t = this.add
-      .text(this.scale.width / 2, 160, text, {
-        fontFamily: "monospace",
-        fontSize: "13px",
-        color: "#ffe9a3",
-        backgroundColor: "#101812cc",
-        padding: { x: 10, y: 5 },
-        wordWrap: { width: this.scale.width - 48 },
-      })
-      .setOrigin(0.5)
-      .setDepth(110)
-      .setScrollFactor(0);
-    this.tweens.add({
-      targets: t,
-      alpha: 0,
-      y: t.y - 20,
-      duration: 1400,
-      onComplete: () => t.destroy(),
-    });
+    this.notice.show(text);
   }
 
   private updateHud(): void {
@@ -828,9 +827,18 @@ export class FarmScene extends Phaser.Scene {
     return saved;
   }
 
+  private hideGuidance(): void {
+    this.notice.update(0, true);
+    this.merchant?.hideGuidance(); this.questHint?.setVisible(false);
+    this.contextHint?.setVisible(false); this.tileHighlight?.setVisible(false);
+  }
+
   update(_time: number, delta: number): void {
+    this.fishingPanel?.update(delta);
+    this.pondLife?.cast(this.player, this.fishingPanel?.isOpen ? this.fishingSpot : null, getGameSession().fishing.state.phase);
     const audio = getFarmAudio();
     if (this.busy() || document.hidden) {
+      this.hideGuidance();
       audio.setPaused(true);
       this.clockPaused = true; this.player.sprite.setVelocity(0, 0); return;
     }
@@ -842,28 +850,32 @@ export class FarmScene extends Phaser.Scene {
     if (session.advanceTime(clockDelta)) this.saveCurrent();
     this.atmosphere.update(session.life.minute, session.weather.current().type, clockDelta);
     this.updateLantern();
+    this.pondLife.update(clockDelta,session.time.date.season,session.life.minute,session.weather.current().type);
     this.player.update(delta);
     if (Math.hypot(this.player.x - this.lastStepX, this.player.y - this.lastStepY) >= 8) {
       audio.play("step"); this.lastStepX = this.player.x; this.lastStepY = this.player.y;
     }
-    const quest = session.introQuest.state;
-    const crop = quest.cropId ? getCrop(quest.cropId) : undefined;
-    const count = crop ? Math.min(session.inventory.count(crop.id), 1) : 0;
-    this.merchant?.update(this.player.x, this.player.y, quest.status === "active" && count > 0 ? "ready" : quest.status);
-    const questKey = `${quest.status}:${quest.cropId}:${count}`;
+    const guidance = getQuestGuidance(session, "farm");
+    this.merchant?.update(this.player.x, this.player.y, guidance.status, clockDelta);
+    this.questHint.setVisible(true); this.contextHint.setVisible(true);
+    const questKey = JSON.stringify(guidance);
     if (questKey !== this.lastQuestKey) {
       this.lastQuestKey = questKey;
-      this.questHint.setText(quest.status === "completed" ? "✓ 首份收成已完成 · Q 手记"
-        : quest.status === "available" ? "初来林缘 · Q 手记\n找到田边的禾木，领取种子"
-        : `首份收成 · Q 手记\n${crop?.name ?? "收成"} ${count}/1 · 找禾木交付`);
-      if (!this.merchant && quest.status !== "completed") this.questHint.setText(this.questHint.text + "\nQ 打开禾木的便笺");
+      const nextStep = this.merchant ? guidance.nextStep : guidance.status === "available"
+        ? "Q 打开禾木的便笺，领取种子" : guidance.status === "ready"
+        ? "材料齐了 · Q 打开便笺核对交付" : "照料并收获委托作物 · Q 查看便笺";
+      this.questHint.setText(guidance.status === "completed" ? "✓ 首份收成已完成 · L 区域手记"
+        : `${guidance.title} · Q 手记\n${guidance.progress}\n${nextStep}`);
     }
-    this.contextHint.setText(this.merchant?.near(this.player.x, this.player.y) ? "E 与禾木交谈 · 种子与首份收成"
+    const context = this.merchant?.near(this.player.x, this.player.y) ? "E 与禾木交谈 · 种子与首份收成"
       : this.nearHome() ? "E 进入农舍 · 屋内床边休息"
       : session.life.isLate ? "夜深了 · 回小屋床边按 E 休息"
       : session.life.energy < 2 ? "体力不足 · 回小屋休息，明天再继续"
       : session.weather.current().autoWater ? "雨天自动浇水 · 省下体力照料农场"
-      : this.passage?.hint() ?? "西路通森林 · 东路通溪桥镇 · L 区域手记");
+      : pondCastTarget(this.world,this.player) ? "F 池畔垂钓 · 岸边备有鱼竿 · 成功消耗4体力"
+      : this.passage?.hint() ?? "东南池塘可按 F 垂钓 · 西路通森林 · 东路通镇子";
+    const notice = this.notice.update(clockDelta, false);
+    this.contextHint.setText(notice || context).setColor(notice ? "#f5d693" : "#f2dfaa");
     this.player.sprite.setDepth(FarmEnvironment.objectDepth(this.player.y + TILE / 2));
 
     const lifeKey = `${session.life.minute}:${session.life.energy}:${session.weather.current().type}`;
@@ -894,7 +906,7 @@ export class FarmScene extends Phaser.Scene {
   // ── P3：快捷栏图标脏检查（8 格 itemId 串变化时逐格 setTexture）──
   private syncTargetHighlight(): void {
     const target = this.getTargetTileId();
-    const active = !this.busy();
+    const active = !this.busy() && !document.hidden;
     if (target && active && TILLABLE.has(target.key)) {
       // Keep the 2px stroke wholly inside its 32px cell, after Arcade has synced the final position.
       this.tileHighlight.setPosition(target.col * TILE + 1, target.row * TILE + 1).setVisible(true);
@@ -912,10 +924,14 @@ export class FarmScene extends Phaser.Scene {
 
   // ── T4-3：场景关闭时清理新增监听与精灵缓存 ────
   shutdown(): void {
+    this.detachToolShortcut?.(); this.detachToolShortcut = undefined;
+    this.notice.clear();
     this.events.off(Phaser.Scenes.Events.POST_UPDATE, this.syncTargetHighlight, this);
     this.menu?.destroy();
     this.crafting?.destroy();
     this.travel?.destroy();
+    this.fishingPanel?.destroy();this.fishingSpot=null;
+    this.pondLife?.destroy();
     this.passage?.destroy(); this.passage = undefined;
     this.lantern?.destroy(); this.lantern = undefined;
     this.lanternGlow?.destroy(); this.lanternGlow = undefined;
@@ -931,7 +947,7 @@ export class FarmScene extends Phaser.Scene {
     this.player?.destroy();
     const k = this.input.keyboard;
     if (k) {
-      for (const event of ["keydown-E", "keydown-T", "keydown-B", "keydown-I", "keydown-Q", "keydown-M", "keydown-K", "keydown-L"]) k.off(event);
+      for (const event of ["keydown-E", "keydown-T", "keydown-B", "keydown-I", "keydown-Q", "keydown-M", "keydown-K", "keydown-L", "keydown-F"]) k.off(event);
       for (const n of NUM_KEYS) {
         k.off(`keydown-${n}`);
       }

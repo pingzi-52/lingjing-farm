@@ -1,3 +1,5 @@
+import { applyForestReadability } from "./forestReadability";
+import { applyForestComposition } from "./forestComposition";
 import type { ParsedMap } from "./farm01.types";
 
 export type ExplorationKind = "forest" | "town";
@@ -8,6 +10,7 @@ export interface ExplorationMap extends ParsedMap {
   resident: MapCell;
   nodes: ForageNode[];
   paths: MapCell[];
+  clearings: MapCell[];
   props: (MapCell & { frame: string; blocking: boolean })[];
   buildings: (MapCell & { width: number; height: number; label: string })[];
 }
@@ -24,7 +27,7 @@ function base(kind: ExplorationKind): ExplorationMap {
     })),
     start: { row: 20, col: 15 }, bed: { row: 20, col: 15 },
     resident: { row: kind === "forest" ? 16 : 11, col: kind === "forest" ? 13 : 18 },
-    nodes: [], paths: [], props: [], buildings: [],
+    nodes: [], paths: [], clearings: [], props: [], buildings: [],
   };
 }
 
@@ -75,6 +78,8 @@ export function createForestMap(): ExplorationMap {
     { row: 20, col: 18, frame: "TX Props Stone Bench S", blocking: true },
   ];
   for (const prop of map.props) map.tiles[prop.row][prop.col] = { key: "grass", solid: prop.blocking };
+  applyForestReadability(map);
+  applyForestComposition(map);
   return map;
 }
 
@@ -88,6 +93,12 @@ export function createTownMap(): ExplorationMap {
     { row: 6, col: 6, width: 6, height: 3, label: "木匠工坊" },
     { row: 6, col: 20, width: 6, height: 3, label: "林缘会馆" },
   ];
+  // Broaden only the two existing entrances; preserve buildings, props and the old street.
+  for (const building of map.buildings) {
+    for (let r = building.row + building.height; r < building.row + building.height + 2; r++) {
+      for (let c = building.col + 1; c < building.col + building.width - 1; c++) addPath(map, r, c);
+    }
+  }
   for (const b of map.buildings) for (let r = b.row; r < b.row + b.height; r++) {
     for (let c = b.col; c < b.col + b.width; c++) map.tiles[r][c] = { key: "grass", solid: true };
   }

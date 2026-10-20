@@ -15,7 +15,11 @@ export class ResidentDialogue extends PausePanel {
     const panel = this.panel(this.kind === "forest" ? "岚 · 林缘向导" : "阿榆 · 木匠");
     const intro = node("div", "merchant-intro"), portrait = node("img", "merchant-portrait"); portrait.alt = "";
     const frame = this.kind === "forest" ? "guide" : "carpenter";
-    if (this.scene.textures.exists("farm-beta-npcs") && this.scene.textures.get("farm-beta-npcs").has(frame)) portrait.src = this.scene.textures.getBase64("farm-beta-npcs", frame);
+    if (this.scene.textures.exists("farm-residents-motion-v1") && this.scene.textures.get("farm-residents-motion-v1").has(`${frame}_idle`)) {
+      portrait.src = this.scene.textures.getBase64("farm-residents-motion-v1", `${frame}_idle`);
+    } else if (this.scene.textures.exists("farm-beta-npcs") && this.scene.textures.get("farm-beta-npcs").has(frame)) {
+      portrait.src = this.scene.textures.getBase64("farm-beta-npcs", frame);
+    }
     intro.append(portrait, node("p", "farm-menu-note", this.kind === "forest"
       ? "林子每天都会带来一点新东西。收集地上的枯枝、溪石和蘑菇，别忘了留些体力走回家。"
       : "工坊还有不少地方要修。带些材料来帮忙，我就把农场提灯的做法教给你。菌菇餐可以随手制作。"));

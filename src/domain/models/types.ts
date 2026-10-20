@@ -14,6 +14,7 @@ export type IntroQuestState =
   | { status: "active" | "completed"; cropId: string };
 
 export type ExplorationQuestStatus = "available" | "active" | "completed";
+export interface FishingQuestState { status: "available" | "active" | "completed" }
 
 /** 仅持久化探索进度和稳定采集ID，不保存场景或渲染坐标。 */
 export interface ExplorationState {
@@ -24,9 +25,9 @@ export interface ExplorationState {
   lanternBuilt: boolean;
 }
 
-/** V6完整存档含林地探索进度；V1..V5在读取边界严格验证并迁移。 */
+/** V7新增一次性池塘委托；V1..V6在读取边界严格验证并迁移。 */
 export interface SaveData {
-  version: 6;
+  version: 7;
   gold: number;
   day: number;
   inventory: InventoryState;
@@ -35,6 +36,7 @@ export interface SaveData {
   daily: DailyState;
   introQuest: IntroQuestState;
   exploration: ExplorationState;
+  fishingQuest: FishingQuestState;
 }
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 export const SAVE_KEY = "four-seasons-farm/save";

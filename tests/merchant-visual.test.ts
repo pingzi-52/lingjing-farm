@@ -18,7 +18,7 @@ it("preserves the tall merchant silhouette and feet while retaining the original
   body.frame = { realWidth: 32, realHeight: 28 };
   const labels: Display[] = [];
   const scene = {
-    textures: { exists: () => true, get: () => ({ has: () => true }) },
+    textures: { exists: (key: string) => key === "farm-merchant-v1", get: () => ({ has: () => true }) },
     physics: { add: { staticImage: () => body } },
     add: {
       image: (x: number, y: number) => { image.x = x; image.y = y; return image; },

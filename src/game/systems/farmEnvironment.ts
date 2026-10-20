@@ -3,7 +3,9 @@ import type { TileDef } from "../../data/maps/farm01.types";
 import type { Season } from "../../domain/models/types";
 import { TILE } from "../config";
 import type { ParsedMap } from "../../data/maps/farm01.types";
-import { planFarmDetails } from "./farmDetails";
+import { planFarmDetails, type FarmDetail } from "./farmDetails";
+import { detailSprites } from "./detailSprites";
+import { TREE_RENDER_SCALE } from "../../data/maps/forestReadability";
 
 // Only this module knows the current environment pack. Gameplay keeps its tile keys.
 const PACK = "farm-assets/cainos-basic/";
@@ -16,6 +18,8 @@ const TINT: Record<Season, number> = {
 
 export class FarmEnvironment {
   private readonly images: Phaser.GameObjects.Image[] = [];
+  private readonly trees: Phaser.GameObjects.Image[] = [];
+  get treeImages(): readonly Phaser.GameObjects.Image[] { return this.trees; }
   private readonly ready: boolean;
   private readonly details = new Map<string, Phaser.GameObjects.Image[]>();
 
@@ -54,9 +58,10 @@ export class FarmEnvironment {
     this.images.push(grass);
     if (tile.key === "tree") {
       const type = ["T1", "T2", "T3"][(row + col) % 3];
-      this.images.push(this.scene.add.image(x + TILE / 2, y + TILE, "TX Plant",
-        `farm-tree-${type}`).setOrigin(0.5, 1).setScale(0.65)
-        .setDepth(FarmEnvironment.objectDepth(y + TILE)));
+      const tree = this.scene.add.image(x + TILE / 2, y + TILE, "TX Plant",
+        `farm-tree-${type}`).setOrigin(0.5, 1).setScale(TREE_RENDER_SCALE)
+        .setDepth(FarmEnvironment.objectDepth(y + TILE));
+      this.images.push(tree); this.trees.push(tree);
     } else if (tile.key === "rock") {
       this.images.push(this.scene.add.image(x + TILE / 2, y + TILE, "TX Props",
         "TX Props - Stone 06").setOrigin(0.5, 1).setDisplaySize(32, 30)
@@ -72,33 +77,26 @@ export class FarmEnvironment {
 
   static objectDepth(feetY: number): number { return 10 + feetY / 10000; }
 
-  renderDetails(world: ParsedMap): void {
+  renderDetails(world: ParsedMap, reservedIds: readonly string[] = []): void {
+    this.renderDetailPlan(planFarmDetails(world, reservedIds));
+  }
+
+  renderDetailPlan(plan: readonly FarmDetail[]): void {
     if (!this.ready) return;
-    for (const detail of planFarmDetails(world)) {
+    const plants = this.scene.textures.get("TX Plant");
+    for (const detail of plan) {
       const x = detail.col * TILE, y = detail.row * TILE;
       const sprites: Phaser.GameObjects.Image[] = [];
-      const add = (dx: number, dy: number, frame: string) => {
-        const seed = detail.row * 17 + detail.col * 13 + sprites.length * 7;
+      for (const { x: dx, y: dy, frame } of detailSprites(detail)) {
+        if (!plants.has(frame)) continue;
         const bounds = this.scene.textures.getFrame("TX Plant", frame);
-        const px = Math.max(bounds.width / 2, Math.min(TILE - bounds.width / 2, dx + seed % 5 - 2));
-        const py = Math.max(bounds.height, Math.min(TILE, dy + (seed * 3) % 5 - 2));
+        if (bounds.width > TILE || bounds.height > TILE) continue;
+        const px = Math.max(bounds.width / 2, Math.min(TILE - bounds.width / 2, dx));
+        const py = Math.max(bounds.height, Math.min(TILE, dy));
         const image = this.scene.add.image(x + px, y + py, "TX Plant", frame)
           .setOrigin(0.5, 1).setDepth(2);
         sprites.push(image);
         this.images.push(image);
-      };
-      if (detail.kind === "flowers") {
-        const spots = [[8, 12], [20, 10], [14, 19], [25, 23], [7, 27]];
-        const offset = (detail.row + detail.col) % spots.length;
-        for (let i = 0; i < 3 + (detail.row * 3 + detail.col) % 3; i++) {
-          const [dx, dy] = spots[(i + offset) % spots.length];
-          add(dx, dy, "TX Plant - Flower 01");
-        }
-        add(17, 30, "TX Plant - Grass 07");
-      } else {
-        const type = String((detail.row * 7 + detail.col * 3) % 6 + 1).padStart(2, "0");
-        add(10, 16, `TX Plant - Grass ${type}`);
-        add(23, 29, "TX Plant - Grass 10");
       }
       this.details.set(`${detail.row}_${detail.col}`, sprites);
     }

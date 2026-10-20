@@ -10,12 +10,12 @@ const v3 = () => ({ ...v2(), version: 3, chest: { capacity: 24, slots: [{ itemId
 const v4 = () => ({ ...v3(), version: 4, daily: { minute: 820, energy: 47 } });
 const v5 = (introQuest: IntroQuestState = available()) => ({ ...v4(), version: 5, introQuest });
 
-const current = (data = v5()) => ({ ...data, version: SAVE_VERSION, exploration: { forageDay: data.day, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
+const current = (data = v5()) => ({ ...data, version: SAVE_VERSION, fishingQuest: { status: "available" }, exploration: { forageDay: data.day, picked: [], forestQuest: "available", carpenterQuest: "available", lanternBuilt: false } });
 
 describe("V5 persisted introduction quest", () => {
   it.each<IntroQuestState>([available(), { status: "active", cropId: "dew_radish" }, { status: "completed", cropId: "starberry" }])("round-trips $status alongside the complete existing farm", introQuest => {
     const storage = new MemoryStorage(); const save = new SaveManager(storage); const data = v5(introQuest);
-    expect(SAVE_VERSION).toBe(6); expect(save.save(data)).toBe(true); expect(save.load()).toEqual(current(data)); expect(JSON.parse(storage.get(SAVE_KEY)!)).toEqual(current(data));
+    expect(SAVE_VERSION).toBe(7); expect(save.save(data)).toBe(true); expect(save.load()).toEqual(current(data)); expect(JSON.parse(storage.get(SAVE_KEY)!)).toEqual(current(data));
   });
 
   it.each(CROPS.flatMap(crop => (["active", "completed"] as const).map(status => ({ status, cropId: crop.id }))))("accepts known crop $cropId for $status", introQuest => {
@@ -79,8 +79,8 @@ describe("V1 through V4 migration and raw backup protection", () => {
     for (const data of [badDaily, badBag, badFarm]) { storage.set(SAVE_KEY, JSON.stringify(data)); expect(save.load()).toBeNull(); }
   });
 
-  it("protects future V7 and restores a raw V4 backup without discarding rejected bytes", () => {
-    const storage = new MemoryStorage(); const save = new SaveManager(storage); const future = JSON.stringify({ ...v5(), version: 7 }); const backup = JSON.stringify(v4(), null, 2);
+  it("protects future V8 and restores a raw V4 backup without discarding rejected bytes", () => {
+    const storage = new MemoryStorage(); const save = new SaveManager(storage); const future = JSON.stringify({ ...v5(), version: 8 }); const backup = JSON.stringify(v4(), null, 2);
     storage.set(SAVE_KEY, future); storage.set(SAVE_BACKUP_KEY, backup);
     expect(save.load()).toBeNull(); expect(save.save(v5())).toBe(false); expect(storage.get(SAVE_KEY)).toBe(future); expect(storage.get(SAVE_BACKUP_KEY)).toBe(backup);
     expect(save.restoreBackup()).toBe(true); expect(storage.get(SAVE_RECOVERY_KEY)).toBe(future); expect(storage.get(SAVE_KEY)).toBe(backup); expect(save.load()).toEqual(current());
