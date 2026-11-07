@@ -20,9 +20,9 @@ export class PausePanel {
     if (!this.overlay) return;
     if (event.key === "Escape" || event.code === this.toggle) { event.preventDefault(); this.close(); }
     else if (event.key === "Tab") {
-      const controls = Array.from(this.overlay.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"));
+      const controls = Array.from(this.overlay.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled):not([type="hidden"])'));
       if (controls.length) {
-        const current = controls.indexOf(document.activeElement as HTMLButtonElement);
+        const current = controls.indexOf(document.activeElement as HTMLElement);
         const next = event.shiftKey ? (current - 1 + controls.length) % controls.length : (current + 1) % controls.length;
         event.preventDefault(); controls[next].focus();
       }
@@ -63,7 +63,7 @@ export class PausePanel {
     if (!this.overlay) return;
     const action = (document.activeElement as HTMLElement | null)?.dataset.action;
     this.overlay.replaceChildren(panel);
-    const buttons = Array.from(panel.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"));
-    (buttons.find(b => b.dataset.action === action) ?? buttons[0])?.focus();
+    const controls = Array.from(panel.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled):not([type="hidden"])'));
+    (controls.find(b => b.dataset.action === action) ?? controls[0])?.focus();
   }
 }

@@ -1,5 +1,6 @@
 import type { FarmTileState } from "./Crop";
 import type { InventoryState } from "./Item";
+import type { FurnitureState } from "./Furniture";
 
 /** 原创日历：每季14天 */
 export type Season = "spring" | "summer" | "autumn" | "winter";
@@ -24,9 +25,9 @@ export interface ExplorationState {
   lanternBuilt: boolean;
 }
 
-/** V6完整存档含林地探索进度；V1..V5在读取边界严格验证并迁移。 */
+/** V7完整存档含家具实例与布局；V1..V6在读取边界严格验证并迁移。 */
 export interface SaveData {
-  version: 6;
+  version: 7;
   gold: number;
   day: number;
   inventory: InventoryState;
@@ -35,6 +36,7 @@ export interface SaveData {
   daily: DailyState;
   introQuest: IntroQuestState;
   exploration: ExplorationState;
+  furniture: FurnitureState;
 }
-export const SAVE_VERSION = 6;
+export const SAVE_VERSION = 7;
 export const SAVE_KEY = "four-seasons-farm/save";

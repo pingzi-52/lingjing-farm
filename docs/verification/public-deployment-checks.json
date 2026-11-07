@@ -1,0 +1,56 @@
+{
+  "deployment": {
+  "date": "2026-11-03",
+  "provider": "Sites",
+  "access": "public",
+  "status": "succeeded",
+  "url": "https://lingjing-farm.brownarrow2.chatgpt.site",
+  "projectId": "appgprj_6ae9ce1f6a488191ad91a61ee9fd520d",
+  "versionId": "appgprj_6ae9ce1f6a488191ad91a61ee9fd520d~appgver_7079d144df588191b446021db878b9f3",
+  "versionNumber": 2,
+  "deploymentId": "appgdep_6ae9d39e32ac8191982f68f4bbbd3c97",
+  "commit": "bf651784713781f11dfacdcab042fb6beb1c4427",
+  "method": "remote build after local archive upload connection failure",
+  "tests": {
+    "files": 61,
+    "passed": 1039
+  },
+  "build": "passed",
+  "registry": "https://registry.npmjs.org/",
+  "publicBrowserQa": "Native Sites deployment result confirms publication; desktop and mobile interaction QA used local production preview; no physical phone test."
+},
+  "local": {
+    "portrait": {
+      "width": 390,
+      "height": 844
+    },
+    "landscape": {
+      "canvas": {
+        "x": 84.80006408691406,
+        "y": 22.550064086914062,
+        "width": 428.40818786621094,
+        "height": 321.30613708496094
+      },
+      "width": 844
+    },
+    "touchTitleStart": true,
+    "heldMovement": true,
+    "bag": true,
+    "map": true,
+    "market": true,
+    "saveToTitle": true,
+    "saveManagement": true,
+    "menuPaused": true,
+    "consoleErrors": []
+  },
+  "productionPreview": {
+    "httpStatus": 200,
+    "mobileTouchStart": true,
+    "mobileMarket": true,
+    "mobileNoOverflow": true,
+    "desktopKeyboardStart": true,
+    "desktopInventory": true,
+    "desktopTouchControlsHidden": true,
+    "consoleErrors": []
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "date": "2026-10-21",
+  "origin": "http://127.0.0.1:5176",
+  "isolation": "Temporary headless Chrome contexts; synthetic V6 fixtures. Before/after images use same fixture, view and position. Scene/position fixtures separate from real input walking.",
+  "baselineTests": 774,
+  "sourceImageInspection": {
+    "sizes": [
+      1254,
+      1254
+    ],
+    "meadowAlpha": [
+      255,
+      255
+    ],
+    "pathAlpha": [
+      0,
+      255
+    ],
+    "opaqueRedFringePixels": 0
+  },
+  "seasons": [
+    {
+      "season": "spring",
+      "day": 1,
+      "tint": 16777215
+    },
+    {
+      "season": "summer",
+      "day": 15,
+      "tint": 16117708
+    },
+    {
+      "season": "autumn",
+      "day": 29,
+      "tint": 15054721
+    },
+    {
+      "season": "winter",
+      "day": 43,
+      "tint": 13162207
+    }
+  ],
+  "seasonUnderlay": "All four checked: environment and soil underlay use farm-meadow-v2 with equal seasonal tint.",
+  "visualFixtures": [
+    "farm/town same-fixture before/after",
+    "four seasons at minute820",
+    "forest rain day6 minute820",
+    "town night day1 minute1260"
+  ],
+  "maxHud": {
+    "day": 1000000,
+    "gold": 1000000000,
+    "minute": 1320,
+    "energy": 0,
+    "allFieldsInsidePanel": true
+  },
+  "selection": {
+    "slot": 2,
+    "detail": "手持 · 青露萝卜种子",
+    "icon": "farm-icons-v1/dew_radish_seed",
+    "markerX": 202,
+    "slotX": 202,
+    "slotCount": 8
+  },
+  "farming": {
+    "positionFixture": true,
+    "realInputs": "1 click hoe, 2 click water, 3 click seed",
+    "newTile": "11_12",
+    "newCrop": {
+      "cropId": "dew_radish",
+      "growthDay": 0,
+      "harvestedCount": 0
+    },
+    "newWatered": true,
+    "oldCrop8_12Unchanged": true
+  },
+  "walking": {
+    "realInputs": "A farm -> forest; D forest -> farm -> town",
+    "goldDayInventoryChestFarmingQuestsPickedPreserved": true
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "key": "forest",
+      "hudObjects": 12,
+      "staticBodies": 460,
+      "bodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2
+    },
+    {
+      "cycle": 1,
+      "key": "town",
+      "hudObjects": 12,
+      "staticBodies": 246,
+      "bodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2
+    },
+    {
+      "cycle": 2,
+      "key": "forest",
+      "hudObjects": 12,
+      "staticBodies": 460,
+      "bodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2
+    },
+    {
+      "cycle": 2,
+      "key": "town",
+      "hudObjects": 12,
+      "staticBodies": 246,
+      "bodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2
+    },
+    {
+      "cycle": 3,
+      "key": "forest",
+      "hudObjects": 12,
+      "staticBodies": 460,
+      "bodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2
+    },
+    {
+      "cycle": 3,
+      "key": "town",
+      "hudObjects": 12,
+      "staticBodies": 246,
+      "bodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2
+    }
+  ],
+  "review": "Read-only independent reviewer found no actionable defects; focused34 tests passed.",
+  "harnessNote": "An overlong cycle batch exceeded the REPL 30-second limit and closed its isolated browser; cycle evidence rerun in shorter batches.",
+  "home": {
+    "area": "林缘小屋",
+    "detail": "林缘小屋 · 休息与储物",
+    "hudObjects": 12
+  },
+  "hudDestroyed": true,
+  "inventoryOpens": true,
+  "partialAtlasFallback": {
+    "grass": [
+      "TX Tileset Grass"
+    ],
+    "underlay": [
+      "TX Tileset Grass"
+    ],
+    "paths": [
+      "farm-home-path"
+    ]
+  },
+  "fallbacks": [
+    {
+      "mode": "meadow-only",
+      "grass": [
+        "TX Tileset Grass"
+      ],
+      "underlay": [
+        "TX Tileset Grass"
+      ],
+      "paths": [
+        "farm-path-soft-v1"
+      ],
+      "errors": []
+    },
+    {
+      "mode": "both",
+      "grass": [
+        "TX Tileset Grass"
+      ],
+      "underlay": [
+        "TX Tileset Grass"
+      ],
+      "paths": [
+        "farm-home-path"
+      ],
+      "errors": []
+    }
+  ],
+  "unexpectedPageErrors": [],
+  "finalValidation": {
+    "testFiles": 47,
+    "testsPassed": 783,
+    "buildModules": 81,
+    "typecheck": "passed",
+    "diffCheck": "passed",
+    "existingWarning": "Phaser vendor chunk >500kB"
+  },
+  "selectedGrass": "meadow-v2; three 256x256 frames; draft v1 retained but not loaded",
+  "selectedGrassFrameMeans": [
+    [
+      129.5,
+      165.1,
+      103.4
+    ],
+    [
+      129.2,
+      164.8,
+      103.2
+    ],
+    [
+      129.2,
+      164.7,
+      103.1
+    ]
+  ]
+}

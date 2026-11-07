@@ -1,11 +1,15 @@
 import { SAVE_KEY, SAVE_VERSION, type DailyState, type IntroQuestState, type ExplorationState, type SaveData } from "../domain/models/types";
 import type { InventoryState } from "../domain/models/Item";
 import type { FarmTileState } from "../domain/models/Crop";
+import type { Result } from "../domain/models/Result";
 import { ITEMS } from "../data/items";
 import { CROPS } from "../data/crops";
 import { FARM01 } from "../data/maps/farm01";
+import { createInitialFurniture, validateFurnitureState } from "../domain/services/FurnitureService";
 
 export const SAVE_BACKUP_KEY = `${SAVE_KEY}/backup`;
+/** Explicit import originals survive the rotating autosave backup. */
+export const SAVE_IMPORT_BACKUP_KEY = `${SAVE_KEY}/before-import`;
 /** 原始损坏数据只作恢复记录，永不作为可玩状态加载。 */
 export const SAVE_RECOVERY_KEY = `${SAVE_KEY}/rejected`;
 export const MAX_SAVE_BYTES = 256 * 1024;
@@ -17,6 +21,12 @@ export interface SaveStorage {
   get(key: string): string | null;
   set(key: string, value: string): void;
   remove(key: string): void;
+}
+
+export interface SaveImportPreview {
+  data: SaveData;
+  sourceVersion: number;
+  previousRaw: string | null;
 }
 export class MemoryStorage implements SaveStorage {
   private store = new Map<string, string>();
@@ -103,20 +113,22 @@ function validate(data: unknown): SaveData | null {
   if (!object(data) || !integer(data.gold, 0, MAX_GOLD) || !integer(data.day, 1, MAX_DAY)) return null;
   if (data.version === 1) {
     if (!keys(data, ["version", "gold", "day"])) return null;
-    return { version: SAVE_VERSION, gold: data.gold, day: data.day, farming: [], inventory: initialInventory(), chest: emptyContainer(), daily: initialDaily(), introQuest: initialIntroQuest(), exploration: initialExploration(data.day) };
+    return { version: SAVE_VERSION, gold: data.gold, day: data.day, farming: [], inventory: initialInventory(), chest: emptyContainer(), daily: initialDaily(), introQuest: initialIntroQuest(), exploration: initialExploration(data.day), furniture: createInitialFurniture() };
   }
-  if (data.version !== 2 && data.version !== 3 && data.version !== 4 && data.version !== 5 && data.version !== SAVE_VERSION) return null;
+  if (data.version !== 2 && data.version !== 3 && data.version !== 4 && data.version !== 5 && data.version !== 6 && data.version !== SAVE_VERSION) return null;
   const previousVersion = data.version === 2;
   const hasDaily = data.version >= 4;
   const hasIntroQuest = data.version >= 5;
-  const hasExploration = data.version === SAVE_VERSION;
-  if (!keys(data, ["version", "gold", "day", "inventory", "farming", ...(previousVersion ? [] : ["chest"]), ...(hasDaily ? ["daily"] : []), ...(hasIntroQuest ? ["introQuest"] : []), ...(hasExploration ? ["exploration"] : [])])) return null;
+  const hasExploration = data.version >= 6;
+  const hasFurniture = data.version >= 7;
+  if (!keys(data, ["version", "gold", "day", "inventory", "farming", ...(previousVersion ? [] : ["chest"]), ...(hasDaily ? ["daily"] : []), ...(hasIntroQuest ? ["introQuest"] : []), ...(hasExploration ? ["exploration"] : []), ...(hasFurniture ? ["furniture"] : [])])) return null;
   const inventory = validateContainer(data.inventory);
   const chest = previousVersion ? emptyContainer() : validateContainer(data.chest);
   const daily = hasDaily ? validateDaily(data.daily) : initialDaily();
   const introQuest = hasIntroQuest ? validateIntroQuest(data.introQuest) : initialIntroQuest();
   const exploration = hasExploration ? validateExploration(data.exploration, data.day) : initialExploration(data.day);
-  if (!inventory || !chest || !daily || !introQuest || !exploration) return null;
+  const furniture = hasFurniture ? validateFurnitureState(data.furniture) : createInitialFurniture();
+  if (!inventory || !chest || !daily || !introQuest || !exploration || !furniture) return null;
   if (!Array.isArray(data.farming) || data.farming.length > FARM01.length * FARM01[0].length) return null;
   const farming: FarmTileState[] = [];
   const seen = new Set<string>();
@@ -139,7 +151,7 @@ function validate(data: unknown): SaveData | null {
     }
     farming.push(next);
   }
-  return { version: SAVE_VERSION, gold: data.gold, day: data.day, inventory, chest, farming, daily, introQuest, exploration };
+  return { version: SAVE_VERSION, gold: data.gold, day: data.day, inventory, chest, farming, daily, introQuest, exploration, furniture };
 }
 
 function parse(raw: string | null): SaveData | null {
@@ -147,16 +159,77 @@ function parse(raw: string | null): SaveData | null {
   try { return validate(JSON.parse(raw)); } catch { return null; }
 }
 
+/** Transfer uses the same strict validator as normal saves, with actionable failures. */
+function validateTransfer(raw: string): Result<{ data: SaveData; sourceVersion: number }> {
+  if (!bounded(raw)) return { ok: false, reason: "SAVE_TOO_LARGE" };
+  let source: unknown;
+  try { source = JSON.parse(raw); } catch { return { ok: false, reason: "INVALID_SAVE" }; }
+  if (object(source) && integer(source.version, SAVE_VERSION + 1, Number.MAX_SAFE_INTEGER)) {
+    return { ok: false, reason: "UNSUPPORTED_VERSION" };
+  }
+  const data = validate(source);
+  if (!data || !object(source)) return { ok: false, reason: "INVALID_SAVE" };
+  return { ok: true, value: { data, sourceVersion: source.version as number } };
+}
+
 /** Complete writes are validated; previous valid bytes are backed up before replacing the primary. */
 export class SaveManager {
   constructor(private readonly storage: SaveStorage) {}
 
+  /** Preview/cancel never writes storage, including legacy migration. */
+  previewImport(raw: string): Result<SaveImportPreview> {
+    const validated = validateTransfer(raw);
+    if (!validated.ok) return validated;
+    try {
+      return { ok: true, value: { ...validated.value, previousRaw: this.storage.get(SAVE_KEY) } };
+    } catch { return { ok: false, reason: "STORAGE_FAILED" }; }
+  }
+
+  /** Explicit confirmation revalidates bytes and refuses a changed preview snapshot. */
+  importSave(raw: string, expectedCurrent: string | null): Result {
+    const validated = validateTransfer(raw);
+    if (!validated.ok) return validated;
+    try {
+      const encoded = JSON.stringify(validated.value.data);
+      if (!bounded(encoded)) return { ok: false, reason: "SAVE_TOO_LARGE" };
+      const current = this.storage.get(SAVE_KEY);
+      if (current !== expectedCurrent) return { ok: false, reason: "SAVE_CHANGED" };
+      if (current !== null) {
+        if (!bounded(current)) return { ok: false, reason: "SAVE_TOO_LARGE" };
+        this.storage.set(parse(current) ? SAVE_BACKUP_KEY : SAVE_RECOVERY_KEY, current);
+        this.storage.set(SAVE_IMPORT_BACKUP_KEY, current);
+      }
+      this.storage.set(SAVE_KEY, encoded);
+      return { ok: true, value: undefined };
+    } catch { return { ok: false, reason: "STORAGE_FAILED" }; }
+  }
+
+  /** Export the exact valid persisted document; empty storage has no export. */
+  exportSave(): Result<{ raw: string; day: number }> {
+    return this.exportStoredSave(SAVE_KEY, "NO_SAVE");
+  }
+
+  /** Durable import originals can be exported and restored through normal preview. */
+  exportImportBackup(): Result<{ raw: string; day: number }> {
+    return this.exportStoredSave(SAVE_IMPORT_BACKUP_KEY, "NO_IMPORT_BACKUP");
+  }
+
+  private exportStoredSave(key: string, missingReason: string): Result<{ raw: string; day: number }> {
+    try {
+      const raw = this.storage.get(key);
+      if (raw === null) return { ok: false, reason: missingReason };
+      const validated = validateTransfer(raw);
+      if (!validated.ok) return validated;
+      return { ok: true, value: { raw, day: validated.value.data.day } };
+    } catch { return { ok: false, reason: "STORAGE_FAILED" }; }
+  }
+
   /** Compatibility for old callers supplying only gold/day; new sessions supply all fields. */
-  save(data: Pick<SaveData, "gold" | "day"> & Partial<Pick<SaveData, "inventory" | "farming" | "chest" | "daily" | "introQuest" | "exploration">>): boolean {
+  save(data: Pick<SaveData, "gold" | "day"> & Partial<Pick<SaveData, "inventory" | "farming" | "chest" | "daily" | "introQuest" | "exploration" | "furniture">>): boolean {
     try {
       if ((data.inventory === undefined) !== (data.farming === undefined)) return false;
       if (data.chest !== undefined && data.inventory === undefined) return false;
-      const payload = validate({ ...data, version: SAVE_VERSION, inventory: data.inventory ?? initialInventory(), farming: data.farming ?? [], chest: data.chest ?? emptyContainer(), daily: data.daily === undefined ? initialDaily() : data.daily, introQuest: data.introQuest === undefined ? initialIntroQuest() : data.introQuest, exploration: data.exploration === undefined ? initialExploration(data.day) : data.exploration });
+      const payload = validate({ ...data, version: SAVE_VERSION, inventory: data.inventory ?? initialInventory(), farming: data.farming ?? [], chest: data.chest ?? emptyContainer(), daily: data.daily === undefined ? initialDaily() : data.daily, introQuest: data.introQuest === undefined ? initialIntroQuest() : data.introQuest, exploration: data.exploration === undefined ? initialExploration(data.day) : data.exploration, furniture: data.furniture === undefined ? createInitialFurniture() : data.furniture });
       if (!payload) return false;
       const encoded = JSON.stringify(payload);
       if (!bounded(encoded)) return false;

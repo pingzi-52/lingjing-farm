@@ -1,0 +1,1172 @@
+{
+  "date": "2026-10-21",
+  "origin": "http://127.0.0.1:5176",
+  "isolation": "Isolated temporary Chrome contexts, V6 synthetic fixtures. Scene and player resets used only as explicit positioning fixtures; actual mouse/keyboard commands execute all farming operations.",
+  "baselineTests": 783,
+  "till": {
+    "version": 6,
+    "gold": 777,
+    "day": 1,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 20
+        },
+        {
+          "itemId": "morning_bean_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "starberry_seed",
+          "amount": 5
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "12_12",
+        "tilled": true,
+        "watered": false
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 98
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 1,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "hotbarClick": {
+    "slot": 1,
+    "detail": "手持 · 水壶",
+    "fields": {
+      "12_12": {
+        "id": "12_12",
+        "tilled": true,
+        "watered": false
+      }
+    }
+  },
+  "water": {
+    "version": 6,
+    "gold": 777,
+    "day": 1,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 20
+        },
+        {
+          "itemId": "morning_bean_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "starberry_seed",
+          "amount": 5
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "12_12",
+        "tilled": true,
+        "watered": true
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 96
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 1,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "plant": {
+    "version": 6,
+    "gold": 777,
+    "day": 1,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 19
+        },
+        {
+          "itemId": "morning_bean_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "starberry_seed",
+          "amount": 5
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "12_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 0,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 95
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 1,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "farClickUnchanged": true,
+  "hudClickUnchanged": true,
+  "controlsClickUnchanged": true,
+  "rightClickUnchanged": true,
+  "liveCropProtected": true,
+  "journalText": "农务手记\n关闭 ×\n田地与今日待办\n四季作物图鉴\n1\n已耕地\n0\n空耕地\n1\n成长中\n0\n可收获\n0\n待浇水\n选中 · 青露萝卜\n\n种子 · 首茬 · 已湿润\n\n0/4 生长日 · 还需 4 个有效成长日\n\n今日水分充足，回小屋休息推进一个有效成长日。\n\n干燥的作物会暂停生长。先浇水，再回小屋休息；成熟作物可直接收获。\n\n青露萝卜 · 13行13列\n种子 · 首茬 · 已湿润\n0/4 生长日 · 还需 4 个有效成长日\n\nF / Esc 收起 · 左键选择相邻格农作 · Space 朝向用工具 · E 收获 · X 仅还原空耕地",
+  "journalPause": {
+    "seconds": 7.2,
+    "before": {
+      "clock": "13:40",
+      "x": 400,
+      "y": 432
+    },
+    "after": {
+      "clock": "13:40",
+      "x": 400,
+      "y": 432
+    },
+    "equal": true
+  },
+  "catalog": {
+    "rows": 11,
+    "scroll": {
+      "height": 352,
+      "content": 958
+    },
+    "text": "农务手记\n关闭 ×\n田地与今日待办\n四季作物图鉴\n\n集市按季节出售种子；随身已有种子仍可跨季播种，田中作物也会继续成长。生长日只在水分充足后过夜时增加。\n\n青露萝卜 · 春季种子\n首茬 4 生长日 · 产量 1 · 售价 24 金 / 份\n一次收获，留下耕地可再播种 · 随身种子 19\n晨光豆 · 春季种子\n首茬 6 生长日 · 产量 2 · 售价 20 金 / 份\n一次收获，留下耕地可再播种 · 随身种子 5\n星芽莓 · 春季种子\n首茬 8 生长日 · 产量 1 · 售价 70 金 / 份\n收获后保留植株，再生 3 生长日 · 随身种子 5\n火绒番茄 · 夏季种子\n首茬 8 生长日 · 产量 3 · 售价 25 金 / 份\n一次收获，留下耕地可再播种 · 随身种子 0\n蓝湾瓜 · 夏季种子\n首茬 10 生长日 · 产量 1 · 售价 110 金 / 份\n一次收获，留下耕地可再播种 · 随身种子 0\n金穗玉米 · 夏季种子\n首茬 12 生长日 · 产量 2 · 售价 55 金 / 份\n一次收获，留下耕地可再播种 · 随身种子 0\n琥珀南瓜 · 秋季种子\n首茬 13 生长日 · 产量 1 · 售价 150 金 / 份\n一次收获，留下耕地可再播种 · 随身种子 0\n丰叶白菜 · 秋季种子\n首茬 6 生长日 · 产量 2 · 售价 45 金 / 份\n一次收获，留下耕地可再播种 · 随身种子 0\n月纹葡萄 · 秋季种子\n首茬 10 生长日 · 产量 2 · 售价 80 金 / 份\n一次收获，留下耕地可再播种 · 随身种子 0\n雪晶花 · 冬季种子\n首茬 8 生长日 · 产量 1 · 售",
+    "lastReachable": true,
+    "focus": "beta-close"
+  },
+  "journalClosed": true,
+  "growthJourney": [
+    {
+      "day": 2,
+      "crop": {
+        "id": "12_12",
+        "tilled": true,
+        "watered": false,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 1,
+          "harvestedCount": 0
+        }
+      },
+      "energy": 100
+    },
+    {
+      "day": 3,
+      "crop": {
+        "id": "12_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      },
+      "energy": 100
+    },
+    {
+      "day": 4,
+      "crop": {
+        "id": "12_12",
+        "tilled": true,
+        "watered": false,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 3,
+          "harvestedCount": 0
+        }
+      },
+      "energy": 100
+    },
+    {
+      "day": 5,
+      "crop": {
+        "id": "12_12",
+        "tilled": true,
+        "watered": false,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 4,
+          "harvestedCount": 0
+        }
+      },
+      "energy": 100
+    }
+  ],
+  "matureGuide": {
+    "title": "青露萝卜",
+    "status": "成熟 · 首茬 · 干燥",
+    "progress": "4/4 生长日 · 可收获 1 份",
+    "next": "按 E 收获 1 份青露萝卜。收获后可重新播种，或按 X 还原空耕地。",
+    "mature": true,
+    "watered": false,
+    "canReclaim": false
+  },
+  "harvest": {
+    "version": 6,
+    "gold": 777,
+    "day": 5,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 19
+        },
+        {
+          "itemId": "morning_bean_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "starberry_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "12_12",
+        "tilled": true,
+        "watered": false
+      }
+    ],
+    "daily": {
+      "minute": 360,
+      "energy": 100
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 5,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "reclaim": {
+    "version": 6,
+    "gold": 777,
+    "day": 5,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 19
+        },
+        {
+          "itemId": "morning_bean_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "starberry_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [],
+    "daily": {
+      "minute": 360,
+      "energy": 99
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 5,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "reclaimIdempotent": true,
+  "sale": {
+    "version": 6,
+    "gold": 801,
+    "day": 5,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 19
+        },
+        {
+          "itemId": "morning_bean_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "starberry_seed",
+          "amount": 5
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [],
+    "daily": {
+      "minute": 490,
+      "energy": 99
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 5,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "saleClosedLoop": true,
+  "storageFailures": [
+    {
+      "kind": "till",
+      "memoryEqual": true,
+      "diskEqual": true,
+      "notice": "保存失败，本次农作已撤回；请检查浏览器存储空间。"
+    },
+    {
+      "kind": "plant",
+      "memoryEqual": true,
+      "diskEqual": true,
+      "notice": "保存失败，本次农作已撤回；请检查浏览器存储空间。"
+    },
+    {
+      "kind": "harvest",
+      "memoryEqual": true,
+      "diskEqual": true,
+      "notice": "保存失败，本次农作已撤回；请检查浏览器存储空间。"
+    }
+  ],
+  "retryAfterFailedPlant": {
+    "version": 6,
+    "gold": 777,
+    "day": 1,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 19
+        },
+        {
+          "itemId": "morning_bean_seed",
+          "amount": 5
+        },
+        {
+          "itemId": "starberry_seed",
+          "amount": 5
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "12_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 0,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 1320,
+      "energy": 95
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 1,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "fullBagProtected": true,
+  "regrow": {
+    "crop": {
+      "cropId": "starberry",
+      "growthDay": 0,
+      "harvestedCount": 1
+    },
+    "frame": "starberry_young",
+    "guide": {
+      "title": "星芽莓",
+      "status": "再生初期 · 再生周期 · 干燥",
+      "progress": "0/3 生长日 · 还需 3 个有效成长日",
+      "next": "先浇水，再回小屋休息；干燥时作物暂停成长。",
+      "mature": false,
+      "watered": false,
+      "canReclaim": false
+    }
+  },
+  "regrowProtected": true,
+  "keyboardTool": {
+    "target": {
+      "tileId": "12_12",
+      "row": 12,
+      "col": 12,
+      "key": "grass"
+    },
+    "save": {
+      "version": 6,
+      "gold": 777,
+      "day": 1,
+      "inventory": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "hoe",
+            "amount": 1
+          },
+          {
+            "itemId": "watering_can",
+            "amount": 1
+          },
+          {
+            "itemId": "dew_radish_seed",
+            "amount": 20
+          },
+          {
+            "itemId": "morning_bean_seed",
+            "amount": 5
+          },
+          {
+            "itemId": "starberry_seed",
+            "amount": 5
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "chest": {
+        "capacity": 24,
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "farming": [
+        {
+          "id": "12_12",
+          "tilled": true,
+          "watered": false
+        }
+      ],
+      "daily": {
+        "minute": 820,
+        "energy": 98
+      },
+      "introQuest": {
+        "status": "active",
+        "cropId": "dew_radish"
+      },
+      "exploration": {
+        "forageDay": 1,
+        "picked": [],
+        "forestQuest": "available",
+        "carpenterQuest": "available",
+        "lanternBuilt": false
+      }
+    },
+    "pageScroll": 0
+  },
+  "keyboardCatalog": true,
+  "stageShowcase": [
+    {
+      "season": "spring",
+      "frames": [
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "dew_radish_seed"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "dew_radish_sprout"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "dew_radish_young"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "dew_radish_mature"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "morning_bean_seed"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "morning_bean_sprout"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "morning_bean_young"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "morning_bean_mature"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "starberry_seed"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "starberry_sprout"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "starberry_young"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "starberry_mature"
+        }
+      ],
+      "soil": "farm-soil-pixel-v1"
+    },
+    {
+      "season": "summer",
+      "frames": [
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "ember_tomato_seed"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "ember_tomato_sprout"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "ember_tomato_young"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "ember_tomato_mature"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "blue_melon_seed"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "blue_melon_sprout"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "blue_melon_young"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "blue_melon_mature"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "gold_corn_seed"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "gold_corn_sprout"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "gold_corn_young"
+        },
+        {
+          "key": "farm-crops-warm-v1",
+          "frame": "gold_corn_mature"
+        }
+      ],
+      "soil": "farm-soil-pixel-v1"
+    },
+    {
+      "season": "autumn",
+      "frames": [
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "amber_pumpkin_seed"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "amber_pumpkin_sprout"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "amber_pumpkin_sprout"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "amber_pumpkin_mature"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "leaf_cabbage_seed"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "leaf_cabbage_sprout"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "leaf_cabbage_young"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "leaf_cabbage_mature"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "moon_grape_seed"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "moon_grape_sprout"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "moon_grape_young"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "moon_grape_mature"
+        }
+      ],
+      "soil": "farm-soil-pixel-v1"
+    },
+    {
+      "season": "winter",
+      "frames": [
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "snow_flower_seed"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "snow_flower_sprout"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "snow_flower_young"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "snow_flower_mature"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "ice_grass_seed"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "ice_grass_sprout"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "ice_grass_sprout"
+        },
+        {
+          "key": "farm-crops-cool-v1",
+          "frame": "ice_grass_mature"
+        }
+      ],
+      "soil": "farm-soil-pixel-v1"
+    }
+  ]
+}

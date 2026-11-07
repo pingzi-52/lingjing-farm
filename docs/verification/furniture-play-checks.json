@@ -1,0 +1,307 @@
+{
+  "date": "2026-10-23",
+  "origin": "http://127.0.0.1:5177",
+  "isolation": "Temporary Chrome contexts, synthetic V6 and V7 progress; normal title Enter. Scene transitions/positions used explicitly as fixtures; real E/G/T/S, pointer and DOM controls perform all business actions. No personal profile.",
+  "migration": {
+    "items": 8,
+    "gold": 500,
+    "crop": {
+      "id": "8_12",
+      "tilled": true,
+      "watered": true,
+      "crop": {
+        "cropId": "dew_radish",
+        "growthDay": 1,
+        "harvestedCount": 0
+      }
+    },
+    "rawVersion": 7
+  },
+  "purchase": {
+    "gold": 420,
+    "items": [
+      {
+        "id": 1,
+        "kind": "rug",
+        "position": {
+          "x": 258,
+          "y": 294
+        }
+      },
+      {
+        "id": 2,
+        "kind": "wall-shelf",
+        "position": {
+          "x": 298,
+          "y": 104
+        }
+      },
+      {
+        "id": 3,
+        "kind": "bookcase",
+        "position": {
+          "x": 122,
+          "y": 169
+        }
+      },
+      {
+        "id": 4,
+        "kind": "sideboard",
+        "position": {
+          "x": 282,
+          "y": 168
+        }
+      },
+      {
+        "id": 5,
+        "kind": "table",
+        "position": {
+          "x": 167,
+          "y": 250
+        }
+      },
+      {
+        "id": 6,
+        "kind": "chair",
+        "position": {
+          "x": 168,
+          "y": 282
+        }
+      },
+      {
+        "id": 7,
+        "kind": "lamp",
+        "position": {
+          "x": 395,
+          "y": 248
+        }
+      },
+      {
+        "id": 8,
+        "kind": "plant",
+        "position": {
+          "x": 376,
+          "y": 305
+        }
+      },
+      {
+        "id": 9,
+        "kind": "plant",
+        "position": null
+      }
+    ],
+    "version": 7
+  },
+  "invalid": {
+    "message": "请留出床、木箱、出生点和门口的空间。",
+    "disabled": true
+  },
+  "previewUnchanged": true,
+  "cancelUnchanged": true,
+  "stored": {
+    "id": 9,
+    "kind": "plant",
+    "position": null
+  },
+  "previewPosition": {
+    "x": 350,
+    "y": 254
+  },
+  "failedPlacement": {
+    "stateUnchanged": true,
+    "rawUnchanged": true,
+    "message": "保存失败，本次操作已撤回，请检查浏览器存储空间后重试。"
+  },
+  "confirmed": {
+    "id": 9,
+    "kind": "plant",
+    "position": {
+      "x": 350,
+      "y": 254
+    }
+  },
+  "pauseBefore": {
+    "minute": 910,
+    "energy": 75,
+    "paused": true,
+    "keyboard": false
+  },
+  "pauseAfter": {
+    "minute": 910,
+    "energy": 75
+  },
+  "editCycles": [
+    {
+      "bodies": 9,
+      "colliders": 9,
+      "items": 9,
+      "gListeners": 1,
+      "oldObjects": 0,
+      "oldColliders": 0,
+      "menus": 0
+    },
+    {
+      "bodies": 9,
+      "colliders": 9,
+      "items": 9,
+      "gListeners": 1,
+      "oldObjects": 0,
+      "oldColliders": 0,
+      "menus": 0
+    },
+    {
+      "bodies": 9,
+      "colliders": 9,
+      "items": 9,
+      "gListeners": 1,
+      "oldObjects": 0,
+      "oldColliders": 0,
+      "menus": 0
+    }
+  ],
+  "failedPurchase": {
+    "goldUnchanged": true,
+    "stateUnchanged": true,
+    "rawUnchanged": true,
+    "message": "保存失败，本次操作已撤回，请检查浏览器存储空间后重试。"
+  },
+  "exportedVersion": 7,
+  "imported": {
+    "furniture": {
+      "nextId": 10,
+      "items": [
+        {
+          "id": 1,
+          "kind": "rug",
+          "position": {
+            "x": 258,
+            "y": 294
+          }
+        },
+        {
+          "id": 2,
+          "kind": "wall-shelf",
+          "position": {
+            "x": 298,
+            "y": 104
+          }
+        },
+        {
+          "id": 3,
+          "kind": "bookcase",
+          "position": {
+            "x": 122,
+            "y": 169
+          }
+        },
+        {
+          "id": 4,
+          "kind": "sideboard",
+          "position": {
+            "x": 282,
+            "y": 168
+          }
+        },
+        {
+          "id": 5,
+          "kind": "table",
+          "position": {
+            "x": 167,
+            "y": 250
+          }
+        },
+        {
+          "id": 6,
+          "kind": "chair",
+          "position": {
+            "x": 168,
+            "y": 282
+          }
+        },
+        {
+          "id": 7,
+          "kind": "lamp",
+          "position": {
+            "x": 395,
+            "y": 248
+          }
+        },
+        {
+          "id": 8,
+          "kind": "plant",
+          "position": {
+            "x": 376,
+            "y": 305
+          }
+        },
+        {
+          "id": 9,
+          "kind": "plant",
+          "position": {
+            "x": 326,
+            "y": 254
+          }
+        }
+      ]
+    },
+    "gold": 420,
+    "day": 2,
+    "farming": [
+      {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 1,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "seeds": 5,
+    "branches": 4,
+    "exploration": {
+      "forageDay": 2,
+      "picked": [
+        "wood_a"
+      ],
+      "forestQuest": "active",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "importedBodies": 9,
+  "insufficientDisabled": 8,
+  "capacityDisabled": 8,
+  "capacityText": "金币 9999 · 家具 32/32 件",
+  "missingArt": {
+    "bodies": 2,
+    "items": 9,
+    "position": {
+      "x": 334,
+      "y": 254
+    },
+    "atlas": false
+  },
+  "errors": [],
+  "importErrors": [],
+  "missingErrors": [],
+  "layeredPreview": {
+    "bedIndex": 6,
+    "bookcaseIndex": 7,
+    "rugLefts": [
+      202,
+      204
+    ],
+    "placeEnabled": true
+  },
+  "layeredScene": {
+    "bed": 10.02,
+    "bookcase": 10.0232,
+    "rugCenters": [
+      258,
+      260
+    ]
+  },
+  "layeringErrors": []
+}

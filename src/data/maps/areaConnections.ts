@@ -29,6 +29,25 @@ export function areaExits(area: AreaId): readonly AreaExit[] {
   return EXITS[area];
 }
 
+/** Display-only approach roads shared by the world view and the area journal. */
+export function passagePathCells(world: ParsedMap, area: AreaId, reservedIds: readonly string[] = []): { row: number; col: number }[] {
+  const cells = new Map<string, { row: number; col: number }>();
+  const reserved = new Set(reservedIds);
+  for (const exit of areaExits(area)) {
+    for (let row = exit.row; row < exit.row + 2; row++) {
+      const columns = area === "farm" ? world.width : 5;
+      for (let step = 0; step < columns; step++) {
+        const col = area === "farm" || exit.edge === "left" ? step : world.width - 1 - step;
+        const id = `${row}_${col}`, tile = world.tiles[row]?.[col];
+        if (!tile || tile.solid || tile.key !== "grass") continue;
+        if (reserved.has(id) && col > 0 && col < world.width - 1) continue;
+        cells.set(id, { row, col });
+      }
+    }
+  }
+  return [...cells.values()];
+}
+
 /** Open local walking approaches and the woodland arrival clearing; leave source maps untouched. */
 export function openAreaExits<T extends ParsedMap>(world: T, area: AreaId): T {
   const tiles = world.tiles.map(row => row.map(tile => ({ ...tile })));

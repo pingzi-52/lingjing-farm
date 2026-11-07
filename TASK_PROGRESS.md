@@ -1,4 +1,99 @@
-# 当前：完整开发进度已上传私有 GitHub（2026-10-16）
+# 当前：公网试玩与手机触屏已发布（2026-11-03）
+
+用户要求手机和电脑外网访问，并明确选择免账号打开。Sites 第2版已成功发布：https://lingjing-farm.brownarrow2.chatgpt.site ，public 访问，无需本地电脑开机。项目身份在 .openai/hosting.json；独立 Sites 源码副本 W:\codex\sites\lingjing-farm，原 GitHub 仓库和本地前轮改动保留，未提交推送原 GitHub。
+
+新增自适应画面与触屏方向/交互/工具/菜单按钮，保留桌面键鼠；松手、取消、失焦、菜单/场景切换及旋转释放方向，缩放后刷新 Phaser 指针坐标。继续使用 V7 本地存档，跨设备通过标题页文件导出/导入，不含账号或云同步。官方 npm 源全新安装、61文件1039测试与生产构建通过；手机390×844/844×390和桌面生产包关键流程无运行异常。公网成功以 Sites 部署结果确认，非全真机验收。见 docs/PUBLIC_DEPLOYMENT.md 和 docs/verification/public-deployment-checks.json。
+
+此前每日订单已写设计/研究和纯领域实现（38测试），尚未接入会话、存档和UI；用户本轮转向公网发布，应从现有草稿继续，勿误报每日订单已可玩。
+
+---
+
+# 历史：家具店与自由布置完成（2026-10-23）
+
+用户批准按“阿榆家具店＋小屋自由布置”推进第一阶段。保留全部前轮未提交改动，新增八种按件购买、独立32件家具收纳、小屋G预览/确认摆放/移动/收回、门床箱与当前玩家连通保护。旧八件和旧位置保留；床箱固定，无旋转/出售/扩建。纯领域统一校验、GameSession保存事务、动态HomeDecor销毁重建，PausePanel暂停与焦点复用；预览不写档，保存失败金币/家具回滚。V7完整家具存档，V1–V6严格迁移，V8+保护，文件迁移携带布局。
+
+新增34领域+42迁移+7事务测试，最终60文件1001测试、TypeScript/Vite92模块构建通过，原Phaser大包提示保留。独立只读复核相关90项测试通过，无阻断发现。隔离Chrome真实阿榆E购买500→420金、第9件收纳；G门口禁放/合法预览/取消/确认/收回/失败重试；7.3秒菜单暂停、三轮编辑无增长；刷新和实际下载上传到空白上下文恢复金币/种子/箱/作物/探索与家具9，缺图无隐形碰撞。最终上下文无页面运行异常；仅开发服务实机，不宣称生产服务或全面跨浏览器验收。
+
+详情docs/FURNITURE_PLAY.md、docs/verification/furniture-play-checks.json及furniture-play截图。研究/设计/计划在docs/superpowers。未读取个人浏览器档，未提交推送。下一阶段为每日订单/金币目标，再改善居民生活与季节节奏。
+
+---
+
+# 历史：小屋八件家具与布局完成（2026-10-23）
+
+按用户同意固定家具方案并授权自主决定推进，在feat/area-navigation保留全部既有未提交工作。新增独立v11木桌、软垫椅、书架、矮柜、盆栽、落地灯、地毯与壁架；原PNG由内置imagegen生成/透明背景整理后保持字节，JSON独立裁切，prompt/hash/source齐全。HomeDecor独立管理显示、六个脚印和碰撞关系，纯homeFurniturePlan定义布局。床/箱位置与碰撞保持，原木桶由盆栽替换，中轴保留。实机核对木箱atlas originY=1，深度按底部130，标签移至88。V6/领域/Player本轮不改；固定布置，无购买/摆放功能。
+
+新增12测试，最终57文件918测试、TypeScript/Vite87模块构建与diff检查通过。隔离Chrome真实WASD/E/木箱按钮/T与正常Enter启动，桌椅碰撞/地毯通行、存取、睡觉成长、真实出入、刷新恢复、三轮清理、晴天/雨夜/前后层级通过。单chair帧缺失无隐形碰撞；整v11加载失败保留床箱，旧V1/777金跨季升级V6保持。最终实机上下文无运行异常；未访问用户个人档。只做开发服务实机，未声称生产服务或全面跨浏览器验收。
+
+详见docs/HOME_FURNITURE.md、docs/verification/home-furniture-checks.json、home-furniture截图和public/farm-assets/original-addons/v11/SOURCE.md。研究/设计/计划在docs/superpowers。本轮未提交/推送；家具自由摆放和商店可作为后续独立功能。
+
+---
+
+# 历史：睡觉保存事务修复（2026-10-23）
+
+本地目录 W:\codex\lingjing-farm，保留全部既有未提交修改。检查基线为53文件894测试及正式构建通过。发现小屋先sleep再saveGame，写入失败仍留在下一天；新增GameSession.sleepAndSave并接入床边E，失败还原日期/田地/采集，时钟与体力在成功保存后才重置，保留服务引用与不足七秒的时钟进度。日期上限明确拒绝。V6字段不变；原sleep保留显式推进合同。
+
+新增12项回归，最终54文件906测试、类型检查与85模块正式构建通过，原Phaser大包提示保留。独立Chrome/合成V6夹具/5177开发服务，真实E键触发失败回滚→恢复写入重试→刷新Enter继续，第2天与第3天状态正确，无页面运行异常。未访问用户档案；未做生产服务或全面跨浏览器验收。README补齐已有F/X/Space操作。详情及证据见docs/SLEEP_SAVE_RELIABILITY.md、docs/verification/sleep-save-checks.json、两张sleep-save截图。本轮未提交/推送。
+
+---
+# 当前：地表与HUD美术统一完成（2026-10-21）
+
+按用户“接下来优化一下美术设计吧”授权，选定地表与HUD统一方案；保留全部未提交工作、地图/碰撞/道路拓扑/旧田避让/输入/相机/领域与存档规则。feature-impl研究由navigation_research只新增art-direction-research文档，主Agent实现。无commit/push/PR/发布。
+
+内置image_gen.imagegen生成v9草地与道路；首版草纹在实际32px下偏密，二次简化后选meadow-v2。原PNG字节、初稿、prompt/帧表/来源/哈希保留。groundVisual纯选择整套3草帧/9路帧或旧图回退；环境/土壤透明底图/标题同公式，三道路入口仅换材质。Cainos展示页不变。
+
+新增SceneHud快照视图：奶油纸面、细木边、深绿文字，两行分栏地区/日期天气/时钟/金币/体力条/物品或材料，单栏限宽。Farm/Home/Explore共用并退出销毁；快捷栏仍8×32原位，改纸面与绿色选框，标题按钮同色。农场任务提示改11px中文字体、3px行距。冬季仍现有tint，没有宣称完整雪地或原生32px新包。
+
+最终47文件783测试、TypeScript/Vite81模块构建、diff检查通过；保留既有Phaser大包提示。7项回退测试观察失败后实现，2项资产合同测试；独立复核34项通过、未发现明确缺陷。同V6晴天夹具同机位农场/工坊前后截图齐全。四季环境/土壤新草与tint一致，雨天森林/21:00小镇/室内画面通过；最大day1000000/gold1000000000/体力0所有HUD字段在面板内。
+
+隔离Chrome实际键鼠种下11_12（开垦/浇水/播种），原8_12萝卜growthDay2保持；真实WASD农场→森林→农场→小镇，金币/日期/背包/木箱/田地/任务/采集进度一致。三轮forest/town HUD12、E/L各1、动态体1/POST2、静态460/246稳定；退出小屋旧HUD清空，I背包正常。删草c/路ne帧与拦截草文件/全部v9均正确回退，草底同步、无应用运行异常。一次QA工具超时已改短批重跑并逐步保存，非游戏异常；未访问用户档案。
+
+见docs/ART_DIRECTION.md、docs/verification/art-design-checks.json、docs/screenshots/art-design-*.png、public/farm-assets/original-addons/v9/SOURCE.md及同日设计/计划。开发预览保留127.0.0.1:5175，5176临时验收关闭。后续人物待机/朝向、田地边界与其余季节作物继续遵循新色板。
+
+---
+
+# 历史：森林营地与小镇建筑打磨完成（2026-10-21）
+
+按“继续优化”授权，在W:\codex\lingjing-farm、feat/area-navigation保留全部既有未提交工作。森林入口、岚营地与资源视线释放32个内部树/岩障碍格，保留450格树；原居民/资源稳定ID与坐标、道具碰撞、道路/边界/建筑足迹保持。新纯布局计划控制草花避让与道具替换，独立ExplorationDecor负责显示与销毁；无新增物理体或存档字段。
+
+用内置image_gen.imagegen生成原创建筑v8：红瓦锯子工坊/蓝绿屋顶会馆，保留原PNG字节、提示词、帧表与来源。按原足迹底边192px等比显示，实机发现门前名称遮脸后已移至路侧；物资箱、工作台、石灯只替换既有实心道具格。靠近未采资源显示地面圈，采后取消；缺任一/全部新图可独立回退旧农舍。
+
+分工：forest_clearings只负责空地函数、地图接入及7项测试；主Agent负责展示计划/渲染、素材、集成与浏览器验收；navigation_research只读独立复核，相关36项通过、无可操作缺陷。最终45文件774测试、TypeScript/Vite79模块构建、diff--check通过；保留既有Phaser大包提示。基线755项已跑，旧截图只作历史参考，无同会话前后对照。
+
+实机隔离Chrome正式构建：真实WASD农场→森林→岚E对话→农场→小镇→工坊；另从V6雨天档步行采mushroom_c，蘑菇3→4/体力47→45，金币/旧田/木箱/委托保持。V6三轮切区保留状态、V5迁移保留旧字段；刷新正常。三轮静态体forest460/town246、动态体1、E/L各1、POST_UPDATE2、decor20/49稳定；退出旧decor清空。L手记7.2秒冻结时间/移动。晴雨夜与单栋/两栋素材拦截回退均检查，无应用运行异常。未访问用户档案。
+
+证据见docs/AREA_POLISH.md、docs/verification/area-polish-checks.json、docs/screenshots/area-polish-*.png；素材public/farm-assets/original-addons/v8/SOURCE.md。开发预览仍127.0.0.1:5175/index.html；5176测试服务验收后关闭。未commit/push/PR/发布。下一步驻点居民轻微待机与交互朝向，再分批补其余季节作物素材；建筑仍只作外观。
+
+---
+
+# 历史：自主推进的任务引导、文件存档与居民交付提示完成（2026-10-20）
+
+用户授权自己规划决定推进项目并休息。本轮在W:\codex\lingjing-farm、feat/area-navigation保留全部前轮未提交工作，按提案完成目标引导→文件迁移→居民反馈。未commit/push/PR/发布，远端main仍68da6e0（10月16日），本地实现不等同GitHub已同步。
+
+objectiveGuide纯模型从现有服务推导HUD/Q/L下一步，覆盖目标作物/雨天/混合田/再生/木箱/缺种跨季；L显示三委托材料进度与地点，完成后显示历史已交付数量。岚/阿榆驻点四态提示与材料就绪共用，不添加新动画、作息、任务规则或数据字段。
+
+SaveManager复用严格V1–V6校验，新增预览/确认导入、有效主档导出与持久导入前副本导出。标题S/点击存档管理；256KiB限制、未来版本拒绝、预览后主档变化冲突、保留失败/主档写失败保护；关闭/换文件generation防异步回填，文件输入加入Tab循环。before-import记录最近替换前原文，正常自动保存不会更新，向空主档导入不清除已有副本；有效旧副本可导出再导入，损坏/未来原文保留但不能作为有效档导出。主档仍V6，精确位置仍不保存。
+
+分工：objective_model仅objectiveGuide/tests（28项）；save_transfer_core仅save.ts/tests（64项）；主Agent界面/集成/正式构建浏览器/文档；navigation_research独立审查复跑92项，无阻断，修正有效副本导出文案。新增测试均观察失败后实现；初次736项通过后，实机发现完成后0/3文案与自动保存覆盖普通备份风险，追加历史进度与持久副本测试。最终42文件755项全通过、TypeScript/Vite76模块构建、diff--check通过，保留原Phaser大包提示。
+
+实机独立Chrome正式构建5176、显式丰富V6/故障/异步夹具，未读用户浏览器。真实下载→另一context上传→确认→继续→刷新数据一致；预览取消/坏JSON/负金币/V7/超限/冲突/失败写入/关闭时读取/后选先完成保护通过。导入后正常进游戏、自动保存、T保存，普通backup已更新888而before-import仍原777，实际导出副本字节相等、可预览、取消保留888。真实WASD走森林交岚：777→857，蘑菇3→0，cue完成且无重复交付；走镇交阿榆：857→997、树枝6/溪石4扣除，L完成记录和刷新保持。稳定版本无应用运行错误。
+
+说明/截图：docs/GUIDANCE_AND_SAVE_TRANSFER.md；docs/verification/guidance-save-checks.json；docs/screenshots/objective-*/resident-ready-forest.png/save-transfer-preview.png。设计/计划见docs/superpowers/*/2026-10-20-guidance-save*.md。实际下载仅在外层qa-guidance，不入项目。开发预览仍127.0.0.1:5175；5176仅正式构建验收。下一优先项：森林入口/营地与工坊局部构图，随后居民动作和8种其他季节作物素材；经济/性能先测量，不因大包提示随意改规则。
+
+---
+
+# 历史：新机器恢复开发，森林/小镇方位图本地完成（2026-10-20）
+
+从私有GitHub main 68da6e0克隆到W:\codex\lingjing-farm；Node24.17.0/npm11.13.0按原锁文件npm ci。先复跑657项基线与72模块构建通过，再按交接中的地图引导优先级继续。当前分支feat/area-navigation，本轮未commit/push/PR/公开发布；远端仍为10月16日完整快照。
+
+森林/小镇L手记新增只读方位图：真实障碍/道路/建筑、当前玩家、居民、回农场出口和剩余采集点；已采点隐藏，次日恢复。独立纯模型areaMap、SVG组件AreaMapView，TravelMenu可选getter在打开时取快照；原PausePanel暂停/焦点/关闭保持。将AreaPassage已有道路格选择抽到passagePathCells供两种显示共用，reserved旧田保护与原始地图不变；农场/室内原摘要兼容。无新依赖、美术或存档版本修改。
+
+本轮验证：40文件663测试、TypeScript/Vite74模块构建、git diff --check通过。隔离Chrome真实WASD走农场→森林→农场→小镇→农场；E采mushroom_c得到1蘑菇、体力100→98，L标记消失且剩余8/9，跨区物品/体力/采集状态保持。自然回农舍睡到day2，体力100/picked清空，重进森林地图9/9恢复。手记超过7秒时钟周期冻结数值/位置，地图点击不移动，Esc/L恢复控制；三次开关E/L监听各1、overlay1，农场与室内手记正常。稳定版本无应用运行错误。大包提示仍为原Phaser依赖，未改拆包。
+
+资料：docs/AREA_MAP.md、docs/verification/area-map-checks.json、docs/screenshots/area-map-{forest,town}.png、docs/superpowers/specs/2026-10-20-area-map-design.md与对应plan。预览http://127.0.0.1:5175/index.html。下一步继续按反馈打磨森林/小镇场景构图、NPC动作与其他季节素材；方位图是当前区域快照，不是常驻小地图或传送系统。
+
+---
+
+# 历史：完整开发进度已上传私有 GitHub（2026-10-16）
 
 用户要求全部进度上传并明确选定新私有仓库 pingzi-52/lingjing-farm。已创建private仓库并推送远程main，代码快照b6a995c6304b628af6c1e3bb0fbf9f398e69f284，本地与GitHub API核对commit及完整tree 2afcd76a740ca73092de6653bfff44777bb0e6e3一致。551文件/327素材，约25.3MB解压源树，全部代码、原图帧表、来源许可、测试、截图、规划及交接齐全。没有公开Release或线上部署。
 

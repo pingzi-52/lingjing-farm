@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Player } from "../entities/Player";
 import { SCENE_FARM, SCENE_TITLE } from "../config";
 import { FarmEnvironment } from "../systems/farmEnvironment";
+import { SceneHud } from "../systems/sceneHud";
 import { getGameSession } from "../systems/GameSession";
 import { FarmMenu } from "../../ui/FarmMenu";
 import { ChestMenu } from "../../ui/ChestMenu";
@@ -10,6 +11,9 @@ import { getFarmAudio } from "../systems/farmAudio";
 import { AudioSettingsMenu } from "../../ui/AudioSettingsMenu";
 import { CraftingMenu } from "../../ui/CraftingMenu";
 import { TravelMenu } from "../../ui/TravelMenu";
+import { HomeDecor } from "../systems/HomeDecor";
+import { getPlacedFurniture } from "../../domain/services/FurnitureService";
+import { FurnitureLayoutMenu } from "../../ui/FurnitureLayoutMenu";
 
 const SEASONS = { spring: "春", summer: "夏", autumn: "秋", winter: "冬" };
 const WEATHER = { sunny: "晴", cloudy: "阴", rain: "雨" };
@@ -25,9 +29,11 @@ export class HomeScene extends Phaser.Scene {
   private travel!: TravelMenu;
   private lastStepX = 256;
   private lastStepY = 304;
-  private hud!: Phaser.GameObjects.Text;
+  private hud!: SceneHud;
   private status!: Phaser.GameObjects.Text;
   private atmosphere!: FarmAtmosphere;
+  private decor?: HomeDecor;
+  private layoutMenu!: FurnitureLayoutMenu;
   private furniture: Phaser.Physics.Arcade.Image[] = [];
   private sleepTimer?: Phaser.Time.TimerEvent;
   private sleeping = false;
@@ -53,6 +59,7 @@ export class HomeScene extends Phaser.Scene {
 
   preload(): void {
     FarmEnvironment.preload(this);
+    HomeDecor.preload(this);
     const base = `${import.meta.env.BASE_URL}farm-assets/original-addons/v2/`;
     for (const [key, file] of [["home-floor", "interior-floor-v1.png"], ["home-bed", "bed-v1.png"]]) {
       if (!this.textures.exists(key)) this.load.image(key, `${base}${file}`);
@@ -103,17 +110,18 @@ export class HomeScene extends Phaser.Scene {
       this.textures.get(bedKey).add("trimmed", 0, 208, 168, 637, 1181);
     }
     const bed = this.physics.add.staticImage(350, 160, bedKey,
-      bedKey === "home-bed" ? "trimmed" : undefined).setDisplaySize(44, 80);
+      bedKey === "home-bed" ? "trimmed" : undefined).setDisplaySize(44, 80).setDepth(FarmEnvironment.objectDepth(200));
     bed.refreshBody(); this.furniture.push(bed);
     const props = this.textures.get("TX Props");
     const chestFrame = props.has("TX Props Chest") ? "TX Props Chest" : "TX Props Crate Small";
-    const chest = this.physics.add.staticImage(160, 130, "TX Props", chestFrame).setDisplaySize(40, 32);
+    const chest = this.physics.add.staticImage(160, 130, "TX Props", chestFrame).setDisplaySize(40, 32)
+      .setDepth(FarmEnvironment.objectDepth(130));
     chest.refreshBody(); this.furniture.push(chest);
     this.add.text(350, 110, "床 · E 睡觉", TEXT).setOrigin(0.5);
-    this.add.text(160, 101, "木箱 · E 存取", TEXT).setOrigin(0.5);
-    if (props.has("TX Props Barrel")) this.add.image(385, 296, "TX Props", "TX Props Barrel").setDisplaySize(24, 28);
+    this.add.text(160, 88, "木箱 · E 存取", TEXT).setOrigin(0.5);
 
     this.player = new Player(this, 256, 304);
+    this.refreshFurniture();
     this.lastStepX = this.player.x; this.lastStepY = this.player.y;
     for (const object of this.furniture) this.physics.add.collider(this.player.sprite, object);
     this.menu = new FarmMenu(this, () => {});
@@ -121,12 +129,13 @@ export class HomeScene extends Phaser.Scene {
     this.audioSettings = new AudioSettingsMenu(this);
     this.crafting = new CraftingMenu(this);
     this.travel = new TravelMenu(this);
+    this.layoutMenu = new FurnitureLayoutMenu(this, () => ({ x: this.player.x, y: this.player.y }), () => this.refreshFurniture());
     this.atmosphere = new FarmAtmosphere(this, true);
-    this.add.rectangle(256, 26, 480, 36, 0x4c3927).setStrokeStyle(1, 0xad8650).setDepth(98);
-    this.hud = this.add.text(256, 16, "", TEXT).setOrigin(0.5, 0).setDepth(99);
-    this.status = this.add.text(256, 49, "林缘小屋 · 在床边按 E 休息", { ...TEXT, color: "#dfc48e" })
+    this.hud = new SceneHud(this);
+    this.hud.setDetail("林缘小屋 · G 布置家具");
+    this.status = this.add.text(256, 63, "林缘小屋 · 在床边按 E 休息", { ...TEXT, color: "#dfc48e" })
       .setOrigin(0.5, 0).setWordWrapWidth(464).setAlign("center").setDepth(99);
-    const controls = this.add.text(256, 368, "WASD 移动 · E 交互 · I 背包 · L 区域手记 · K 制作", TEXT).setOrigin(0.5).setDepth(99);
+    const controls = this.add.text(256, 368, "WASD 移动 · E 交互 · G 布置 · I 背包 · L 手记 · K 制作", TEXT).setOrigin(0.5).setDepth(99);
     controls.setScale(Math.min(1, 488 / controls.width));
     this.refreshHud();
     const session = getGameSession();
@@ -141,11 +150,20 @@ export class HomeScene extends Phaser.Scene {
     keyboard.on("keydown-M", this.openAudio, this);
     keyboard.on("keydown-K", this.openCraft, this);
     keyboard.on("keydown-L", this.openTravel, this);
+    keyboard.on("keydown-G", this.openLayout, this);
     document.addEventListener("visibilitychange", this.visibilityChanged);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
   }
 
-  private busy(): boolean { return this.leaving || this.sleeping || this.menu.isOpen || this.chestMenu.isOpen || this.audioSettings.isOpen || this.crafting.isOpen || this.travel.isOpen; }
+  private refreshFurniture(): void {
+    this.decor?.destroy();
+    this.decor = new HomeDecor(this, this.player.sprite, getPlacedFurniture(getGameSession().furniture.state));
+  }
+  private openLayout(): void {
+    if (this.busy()) return;
+    this.player.sprite.setVelocity(0, 0); this.layoutMenu.open();
+  }
+  private busy(): boolean { return this.leaving || this.sleeping || this.menu.isOpen || this.chestMenu.isOpen || this.audioSettings.isOpen || this.crafting.isOpen || this.travel.isOpen || this.layoutMenu.isOpen; }
   private openCraft(): void { if (!this.busy()) this.crafting.open(); }
   private openTravel(): void { if (!this.busy()) this.travel.open(); }
   private openAudio(): void { if (!this.busy()) this.audioSettings.open(); }
@@ -164,11 +182,11 @@ export class HomeScene extends Phaser.Scene {
       this.sleeping = true;
       this.player.sprite.setVelocity(0, 0);
       const session = getGameSession();
-      const date = session.sleep();
-      const saved = session.saveGame();
-      getFarmAudio().play(saved ? "sleep" : "error");
-      this.status.setText(saved ? `休息好了 · ${SEASONS[date.season]} ${date.day}日 · 已保存`
-        : `已到第${date.day}天，保存失败；请留在游戏内，按 T 重试保存`);
+      const result = session.sleepAndSave();
+      getFarmAudio().play(result.ok ? "sleep" : "error");
+      this.status.setText(result.ok ? `休息好了 · ${SEASONS[result.value.season]} ${result.value.day}日 · 已保存`
+        : result.reason === "DAY_LIMIT" ? "已到当前版本的日期上限，未推进日期。可按 T 回标题导出存档。"
+          : "保存失败，本次休息已撤回；请检查浏览器存储空间后再按 E 休息");
       this.refreshHud();
       this.atmosphere.update(session.life.minute, session.weather.current().type, 0);
       this.sleepTimer = this.time.delayedCall(450, () => { this.sleeping = false; this.sleepTimer = undefined; });
@@ -199,8 +217,8 @@ export class HomeScene extends Phaser.Scene {
     this.lastDay = date.day; this.lastGold = session.economy.goldValue;
     this.lastMinute = session.life.minute; this.lastEnergy = session.life.energy;
     this.lastSeason = date.season; this.lastWeather = session.weather.current().type;
-    this.hud.setText(`林缘小屋　${SEASONS[date.season]} ${date.day}日 · ${WEATHER[this.lastWeather]}　${session.life.clockText}　体力 ${session.life.energy}　${session.economy.goldValue} 金`);
-    this.hud.setScale(Math.min(1, 456 / Math.max(1, this.hud.width)));
+    this.hud.update({ area: "林缘小屋", date: `${SEASONS[date.season]} ${date.day}日 · ${WEATHER[this.lastWeather]}`,
+      clock: session.life.clockText, energy: session.life.energy, gold: session.economy.goldValue });
   }
 
   update(_time: number, delta: number): void {
@@ -244,12 +262,16 @@ export class HomeScene extends Phaser.Scene {
     keyboard?.off("keydown-M", this.openAudio, this);
     keyboard?.off("keydown-K", this.openCraft, this);
     keyboard?.off("keydown-L", this.openTravel, this);
+    keyboard?.off("keydown-G", this.openLayout, this);
     document.removeEventListener("visibilitychange", this.visibilityChanged);
     this.sleepTimer?.destroy(); this.sleepTimer = undefined;
     this.menu?.destroy(); this.chestMenu?.destroy();
     this.crafting?.destroy(); this.travel?.destroy();
     this.audioSettings?.destroy(); getFarmAudio().setPaused(true);
+    this.layoutMenu?.destroy();
     this.atmosphere?.destroy();
+    this.hud?.destroy();
+    this.decor?.destroy(); this.decor = undefined;
     this.player?.destroy();
     for (const object of this.furniture) object.destroy();
     this.furniture = [];

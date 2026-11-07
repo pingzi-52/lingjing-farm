@@ -1,4 +1,6 @@
 import "./styles/main.css";
 import { createGame } from "./game/createGame";
+import { installTouchControls } from "./ui/TouchControls";
 
-createGame();
+const game = createGame();
+installTouchControls(game);

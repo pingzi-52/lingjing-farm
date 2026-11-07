@@ -29,6 +29,14 @@ body {
   display: flex; align-items: center; justify-content: center;
   background: #182119c9; font-family: "Microsoft YaHei", sans-serif;
 }
+
+.furniture-layout-body { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 8px; }
+.furniture-owned-list { max-height: 184px; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; }
+.furniture-owned-list button { text-align: left; font-size: 10px; }
+.furniture-owned-list button[aria-pressed="true"] { border-color: #587448; background: #e0e5c3; }
+.furniture-layout-body svg { width: 100%; height: 184px; display: block; background: #4c4935; cursor: crosshair; }
+.furniture-layout-actions { gap: 4px; margin-top: 7px; }
+.farm-menu-panel .furniture-layout-actions button { padding: 4px 6px; }
 .farm-menu-panel {
   box-sizing: border-box; width: calc(100% - 32px); max-height: calc(100% - 24px);
   display: flex; flex-direction: column; color: #443323; background: #eadbb8;
@@ -94,3 +102,29 @@ body {
 .merchant-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .merchant-actions button:first-child { background: #dbe1ba; border-color: #8d985c; }
 .merchant-status { max-width: 100%; }
+
+/* The journal map stays inside the existing scrollable pause panel. */
+.area-map { flex: 0 0 auto; border: 1px solid #bca477; background: #ded0ab; padding: 8px; }
+.area-map-heading { margin: 0 0 6px; font-size: 13px; letter-spacing: 1px; }
+.area-map svg { display: block; width: 100%; height: 216px; background: #394d34; }
+.area-map-symbol, .area-map-label { font-family: "Microsoft YaHei", sans-serif; paint-order: stroke; stroke: #283726; stroke-width: 2px; stroke-linejoin: round; }
+.area-map-symbol { font-size: 12px; font-weight: bold; }
+.area-map-label { font-size: 11px; }
+.area-map-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 7px; padding: 4px 6px; background: #394d34; color: #f4e8cc; font-size: 10px; }
+.area-map-legend b { font-size: 12px; }
+.area-map-caption { margin: 5px 0 0; font-size: 10px; line-height: 1.5; color: #675337; }
+.save-file-label { display: block; margin: 14px 0 4px; font-size: 12px; line-height: 1.6; }
+.save-file-input { display: block; box-sizing: border-box; max-width: 100%; margin-top: 6px; font: inherit; }
+.save-file-input:focus-visible { outline: 2px solid #4f7438; outline-offset: 3px; }
+.save-preview { margin-top: 8px; }
+.quest-guide-next { color: #50633b; }
+.journal-quest { margin-top: 8px; flex: 0 0 auto; }
+.farming-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; margin: 10px 0; flex: 0 0 auto; }
+.farming-summary > div { padding: 8px 3px; text-align: center; border: 1px solid #c3ad80; background: #eee4c8; }
+.farming-summary strong { display: block; color: #48613e; font-size: 19px; }
+.farming-summary small { display: block; margin-top: 3px; color: #6e634c; font-size: 11px; }
+.farming-selected { flex: 0 0 auto; }
+.farming-catalog-row, .farming-journal .farm-menu-header, .farming-journal .farm-menu-tabs { flex: 0 0 auto; }
+.farming-plot-row { padding: 8px 0; border-bottom: 1px solid #cbb791; flex: 0 0 auto; }
+.farming-plot-row strong { display: block; font-size: 12px; color: #4f613e; }
+.farming-plot-row small { display: block; margin-top: 4px; font-size: 11px; line-height: 1.5; color: #76654b; }

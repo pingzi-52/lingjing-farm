@@ -3,13 +3,14 @@ import type { Result } from "../models/Result";
 import type { WeatherState } from "../models/Weather";
 import type { CropService } from "./CropService";
 
-/** 失败原因码（V1.2 只允许这 5 个） */
+/** 地块业务失败原因码。 */
 export const FarmingFailReason = {
   NOT_TILLED: "NOT_TILLED",
   ALREADY_HAS_CROP: "ALREADY_HAS_CROP",
   UNKNOWN_CROP: "UNKNOWN_CROP",
   NOT_MATURE: "NOT_MATURE",
   UNKNOWN_TILE: "UNKNOWN_TILE",
+  CROP_PRESENT: "CROP_PRESENT",
 } as const;
 
 export interface HarvestResult {
@@ -37,6 +38,15 @@ export class FarmingService {
       return { ok: true, value: undefined };
     }
     this.tiles.set(tileId, { id: tileId, tilled: true, watered: false });
+    return { ok: true, value: undefined };
+  }
+
+  /** 仅还原空耕地；成熟或再生植株也不可清除。 */
+  reclaim(tileId: string): Result {
+    const tile = this.tiles.get(tileId);
+    if (!tile) return { ok: false, reason: FarmingFailReason.NOT_TILLED };
+    if (tile.crop) return { ok: false, reason: FarmingFailReason.CROP_PRESENT };
+    this.tiles.delete(tileId);
     return { ok: true, value: undefined };
   }
 

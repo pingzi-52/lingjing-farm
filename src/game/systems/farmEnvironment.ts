@@ -4,6 +4,7 @@ import type { Season } from "../../domain/models/types";
 import { TILE } from "../config";
 import type { ParsedMap } from "../../data/maps/farm01.types";
 import { planFarmDetails } from "./farmDetails";
+import { getGrassVisual, groundFrames, preloadGroundArt } from "./groundVisual";
 
 // Only this module knows the current environment pack. Gameplay keeps its tile keys.
 const PACK = "farm-assets/cainos-basic/";
@@ -20,6 +21,7 @@ export class FarmEnvironment {
   private readonly details = new Map<string, Phaser.GameObjects.Image[]>();
 
   static preload(scene: Phaser.Scene): void {
+    preloadGroundArt(scene);
     const base = import.meta.env.BASE_URL;
     for (const sheet of SHEETS) {
       if (!scene.textures.exists(sheet)) {
@@ -49,8 +51,9 @@ export class FarmEnvironment {
   render(tile: TileDef, row: number, col: number, verticalFence: boolean): boolean {
     if (!this.ready || !REPLACED.has(tile.key)) return false;
     const x = col * TILE, y = row * TILE;
-    const grass = this.scene.add.image(x, y, "TX Tileset Grass",
-      `TX Tileset Grass ${(row * 13 + col * 7) % 3}`).setOrigin(0).setDepth(0);
+    const art = getGrassVisual(row, col, groundFrames(this.scene));
+    if (!art) return false;
+    const grass = this.scene.add.image(x, y, art.texture, art.frame).setDisplaySize(TILE, TILE).setOrigin(0).setDepth(0);
     this.images.push(grass);
     if (tile.key === "tree") {
       const type = ["T1", "T2", "T3"][(row + col) % 3];

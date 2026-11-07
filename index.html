@@ -4,10 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>灵镜档案 · 林缘农场</title>
+    <meta name="description" content="打开即玩的像素农场：种田、采集、经营与小屋家具布置，支持手机触屏和电脑键盘。" />
+    <meta name="theme-color" content="#101812" />
     <link rel="stylesheet" href="/src/styles/main.css" />
   </head>
   <body>
-    <div id="game-root"></div>
+    <main id="game-app">
+      <div id="game-shell"><div id="game-root"></div></div>
+      <div id="touch-controls" aria-label="触屏操作"></div>
+      <p class="device-note">进度保存在当前浏览器。换设备请在标题页「存档管理」导出 / 导入。</p>
+    </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

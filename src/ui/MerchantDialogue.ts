@@ -1,6 +1,7 @@
 import type Phaser from "phaser";
 import { getCrop } from "../data/crops";
 import { getGameSession } from "../game/systems/GameSession";
+import { getIntroObjective } from "../game/systems/objectiveGuide";
 import { getIntroQuestCrop, INTRO_QUEST_REWARD, INTRO_QUEST_SEEDS } from "../domain/services/IntroQuestService";
 import { getFarmAudio } from "../game/systems/farmAudio";
 
@@ -104,6 +105,9 @@ export class MerchantDialogue {
       card.append(el("p", "", `交付：${crop.name} × 1　随身背包 ${Math.min(count, 1)}/1`));
       card.append(el("small", "", `需 ${crop.growDays} 个生长日：每天浇水后休息，雨天自动浇水。成熟时靠近按 E 收获。任务无期限，目标不随换季改变。`));
     } else card.append(el("p", "", `已交付 ${crop.name} × 1，报酬 ${INTRO_QUEST_REWARD} 金已入账。多余收成可以留存或出售。`));
+    const guide = getIntroObjective(session);
+    card.append(el("p", "quest-guide-next", `下一步：${guide.next}`));
+    if (guide.note) card.append(el("small", "", guide.note));
     if (state.status !== "completed") card.append(el("small", "merchant-reward", `完成报酬 ${INTRO_QUEST_REWARD} 金 · 种子仅可领取一次`));
     const actions = el("div", "merchant-actions");
     if (state.status === "available") {

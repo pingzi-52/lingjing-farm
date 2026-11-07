@@ -2,6 +2,12 @@ import type Phaser from "phaser";
 
 /** Display-only originals. Missing files leave the existing placeholder path available. */
 export function preloadFarmArt(scene: Phaser.Scene): void {
+  for (const [key, file] of [["farm-crops-warm-v1", "crops-warm-v1"], ["farm-crops-cool-v1", "crops-cool-v1"], ["farm-soil-pixel-v1", "soil-patches-v1"]]) {
+    if (!scene.textures.exists(key)) {
+      const base = `${import.meta.env.BASE_URL}farm-assets/original-addons/v10/${file}`;
+      scene.load.atlas(key, `${base}.png`, `${base}.json`);
+    }
+  }
   for (const [key, file] of [["farm-forage-v1", "forage-v1"], ["farm-beta-npcs", "residents-v1"]]) {
     if (!scene.textures.exists(key)) {
       const base = `${import.meta.env.BASE_URL}farm-assets/original-addons/v7/${file}`;

@@ -1,0 +1,415 @@
+{
+  "date": "2026-10-20",
+  "environment": "Isolated headless Chrome; keyboard WASD/E/L/Escape and real world passages; no player-position fixtures or user browser profile",
+  "checks": {
+    "pause": {
+      "before": {
+        "area": "forest",
+        "x": 944,
+        "y": 576,
+        "minute": 410,
+        "energy": 100,
+        "inventory": {
+          "capacity": 24,
+          "slots": [
+            {
+              "itemId": "hoe",
+              "amount": 1
+            },
+            {
+              "itemId": "watering_can",
+              "amount": 1
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "picked": [],
+        "gold": 500,
+        "day": 1,
+        "paused": true
+      },
+      "after": {
+        "area": "forest",
+        "x": 944,
+        "y": 576,
+        "minute": 410,
+        "energy": 100,
+        "inventory": {
+          "capacity": 24,
+          "slots": [
+            {
+              "itemId": "hoe",
+              "amount": 1
+            },
+            {
+              "itemId": "watering_can",
+              "amount": 1
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "picked": [],
+        "gold": 500,
+        "day": 1,
+        "paused": true
+      }
+    },
+    "clickReadOnly": {
+      "buttons": [
+        "关闭 ×"
+      ],
+      "state": {
+        "area": "forest",
+        "x": 944,
+        "y": 576,
+        "minute": 410,
+        "energy": 100,
+        "inventory": {
+          "capacity": 24,
+          "slots": [
+            {
+              "itemId": "hoe",
+              "amount": 1
+            },
+            {
+              "itemId": "watering_can",
+              "amount": 1
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "picked": [],
+        "gold": 500,
+        "day": 1,
+        "paused": true
+      }
+    },
+    "gather": {
+      "area": "forest",
+      "x": 877.3333333333343,
+      "y": 528.0000000000007,
+      "minute": 410,
+      "energy": 98,
+      "inventory": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "hoe",
+            "amount": 1
+          },
+          {
+            "itemId": "watering_can",
+            "amount": 1
+          },
+          {
+            "itemId": "wild_mushroom",
+            "amount": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "picked": [
+        "mushroom_c"
+      ],
+      "gold": 500,
+      "day": 1,
+      "paused": false
+    },
+    "afterGather": {
+      "markerGone": true,
+      "remaining": "上北 · 下南 · 左西 · 右东 · 今日还可采 8/9 处",
+      "position": {
+        "x": "274.16666666666697",
+        "y": "165.00000000000023"
+      }
+    },
+    "pauseFullTick": {
+      "unchanged": true
+    },
+    "forestReturn": {
+      "area": "farm",
+      "x": 80,
+      "y": 448,
+      "minute": 430,
+      "energy": 98,
+      "inventory": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "hoe",
+            "amount": 1
+          },
+          {
+            "itemId": "watering_can",
+            "amount": 1
+          },
+          {
+            "itemId": "wild_mushroom",
+            "amount": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "picked": [
+        "mushroom_c"
+      ],
+      "gold": 500,
+      "day": 1,
+      "paused": false
+    },
+    "town": {
+      "state": {
+        "area": "town",
+        "x": 80,
+        "y": 448,
+        "minute": 440,
+        "energy": 98,
+        "inventory": {
+          "capacity": 24,
+          "slots": [
+            {
+              "itemId": "hoe",
+              "amount": 1
+            },
+            {
+              "itemId": "watering_can",
+              "amount": 1
+            },
+            {
+              "itemId": "wild_mushroom",
+              "amount": 1
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "picked": [
+          "mushroom_c"
+        ],
+        "gold": 500,
+        "day": 1,
+        "paused": true
+      },
+      "resources": 0,
+      "buildings": 2,
+      "resident": "阿榆◆阿榆",
+      "exit": "← 农场□← 农场"
+    },
+    "focus": "关闭 ×",
+    "farmJournal": {
+      "maps": 0,
+      "text": "区域手记 · 委托\n关闭 ×\n\n林缘森林 ← 林缘农场 → 溪桥镇\n\n沿农场西侧林间路进入森林，沿东侧乡道前往小镇；顺来路可回农场。\n\n林缘农场 · 你在这里\n种田、禾木杂货铺、农舍与储物箱\n林缘森林\n岚的采集委托 · 今日已采 1/9 处\n溪桥镇\n阿榆的工坊 · 修缮委托与提灯配方\n\n委托：首份收成 尚未接取 · 林间馈赠 尚未接取 · 工坊修缮 尚未接取\n\nL / Esc 收起手记 · 居民身边 E 接取和交付 · K 制作"
+    },
+    "homeJournal": {
+      "maps": 0,
+      "text": "区域手记 · 委托\n关闭 ×\n\n林缘森林 ← 林缘农场 → 溪桥镇\n\n沿农场西侧林间路进入森林，沿东侧乡道前往小镇；顺来路可回农场。\n\n你在林缘小屋：先从下方门口出屋，再沿农场路口步行。\n\n林缘农场\n种田、禾木杂货铺、农舍与储物箱\n林缘森林\n岚的采集委托 · 今日已采 1/9 处\n溪桥镇\n阿榆的工坊 · 修缮委托与提灯配方\n\n委托：首份收成 尚未接取 · 林间馈赠 尚未接取 · 工坊修缮 尚未接取\n\nL / Esc 收起手记 · 居民身边 E 接取和交付 · K 制作",
+      "paused": true
+    },
+    "nextDay": {
+      "area": "home",
+      "x": 304,
+      "y": 160.0000000000003,
+      "minute": 360,
+      "energy": 100,
+      "inventory": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "hoe",
+            "amount": 1
+          },
+          {
+            "itemId": "watering_can",
+            "amount": 1
+          },
+          {
+            "itemId": "wild_mushroom",
+            "amount": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "picked": [],
+      "gold": 500,
+      "day": 2,
+      "paused": false
+    },
+    "nextDayMap": {
+      "text": "上北 · 下南 · 左西 · 右东 · 今日还可采 9/9 处",
+      "restored": true
+    },
+    "repeat": [
+      {
+        "l": 1,
+        "e": 1,
+        "overlays": 1
+      },
+      {
+        "l": 1,
+        "e": 1,
+        "overlays": 1
+      },
+      {
+        "l": 1,
+        "e": 1,
+        "overlays": 1
+      }
+    ],
+    "runtimeErrors": [],
+    "walkingRoutes": [
+      "farm→forest",
+      "forest→farm",
+      "farm→town",
+      "town→farm"
+    ],
+    "verification": {
+      "tests": 663,
+      "testFiles": 40,
+      "buildModules": 74,
+      "buildPassed": true,
+      "diffCheckPassed": true
+    }
+  }
+}

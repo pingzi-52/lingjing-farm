@@ -1,13 +1,18 @@
 import type Phaser from "phaser";
 import { getGameSession } from "../game/systems/GameSession";
 import { PausePanel, node } from "./PausePanel";
+import type { AreaMapSnapshot } from "../game/systems/areaMap";
+import { createAreaMapView } from "./AreaMapView";
+import { getIntroObjective, getExplorationObjective } from "../game/systems/objectiveGuide";
 export class TravelMenu extends PausePanel {
-  constructor(scene: Phaser.Scene) { super(scene, "区域与委托", "KeyL"); }
+  constructor(scene: Phaser.Scene, private readonly getMap?: () => AreaMapSnapshot) { super(scene, "区域与委托", "KeyL"); }
   open(): void {
     if (!this.begin()) return;
     const s = getGameSession(), state = s.exploration.state, panel = this.panel("区域手记 · 委托");
-    panel.append(node("p", "farm-menu-note", "林缘森林 ← 林缘农场 → 溪桥镇"),
-      node("p", "farm-menu-note", "沿农场西侧林间路进入森林，沿东侧乡道前往小镇；顺来路可回农场。"));
+    panel.append(node("p", "farm-menu-note", "林缘森林 ← 林缘农场 → 溪桥镇"));
+    const map = this.getMap?.();
+    if (map) panel.append(createAreaMapView(map));
+    else panel.append(node("p", "farm-menu-note", "沿农场西侧林间路进入森林，沿东侧乡道前往小镇；顺来路可回农场。"));
     if (this.scene.sys.settings.key === "home") {
       panel.append(node("p", "farm-menu-note", "你在林缘小屋：先从下方门口出屋，再沿农场路口步行。"));
     }
@@ -22,9 +27,15 @@ export class TravelMenu extends PausePanel {
       row.append(detail);
       panel.append(row);
     }
-    const status = (value: string) => ({ available: "尚未接取", active: "进行中", completed: "已完成" }[value]);
-    panel.append(node("p", "farm-menu-note", `委托：首份收成 ${status(s.introQuest.state.status)} · 林间馈赠 ${status(state.forestQuest)} · 工坊修缮 ${status(state.carpenterQuest)}`),
-      node("p", "farm-menu-status", "L / Esc 收起手记 · 居民身边 E 接取和交付 · K 制作"));
+    const labels = { available: "尚未接取", active: "进行中", ready: "可交付", completed: "已完成" };
+    for (const guide of [getIntroObjective(s), getExplorationObjective(s, "forest"), getExplorationObjective(s, "carpenter")]) {
+      const card = node("div", "merchant-quest journal-quest");
+      card.append(node("strong", "", `${guide.title} · ${labels[guide.status]}`),
+        node("p", "", guide.progress), node("p", "quest-guide-next", guide.next));
+      if (guide.note) card.append(node("small", "", guide.note));
+      panel.append(card);
+    }
+    panel.append(node("p", "farm-menu-status", "L / Esc 收起手记 · 居民身边 E 接取和交付 · K 制作"));
     this.show(panel);
   }
 }

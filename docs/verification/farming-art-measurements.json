@@ -1,0 +1,58 @@
+{
+  "crops-warm-v1": {
+    "size": [
+      1024,
+      1536
+    ],
+    "components": 24,
+    "alpha": [
+      0,
+      253
+    ]
+  },
+  "crops-cool-v1": {
+    "size": [
+      1122,
+      1402
+    ],
+    "components": 20,
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  "soil-patches-v1": {
+    "size": [
+      2172,
+      724
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "patches": [
+      {
+        "state": "raw",
+        "x": 44,
+        "y": 42,
+        "size": 636,
+        "unit": 106
+      },
+      {
+        "state": "dry",
+        "x": 768,
+        "y": 42,
+        "size": 636,
+        "unit": 106
+      },
+      {
+        "state": "wet",
+        "x": 1491,
+        "y": 42,
+        "size": 636,
+        "unit": 106
+      }
+    ],
+    "frames": 108
+  }
+}

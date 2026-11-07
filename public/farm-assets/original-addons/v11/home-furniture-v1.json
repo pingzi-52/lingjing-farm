@@ -1,0 +1,173 @@
+{
+  "frames": {
+    "table": {
+      "frame": {
+        "x": 33,
+        "y": 235,
+        "w": 385,
+        "h": 250
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 385,
+        "h": 250
+      },
+      "sourceSize": {
+        "w": 385,
+        "h": 250
+      }
+    },
+    "chair": {
+      "frame": {
+        "x": 527,
+        "y": 175,
+        "w": 165,
+        "h": 304
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 165,
+        "h": 304
+      },
+      "sourceSize": {
+        "w": 165,
+        "h": 304
+      }
+    },
+    "bookcase": {
+      "frame": {
+        "x": 817,
+        "y": 51,
+        "w": 283,
+        "h": 440
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 283,
+        "h": 440
+      },
+      "sourceSize": {
+        "w": 283,
+        "h": 440
+      }
+    },
+    "sideboard": {
+      "frame": {
+        "x": 1185,
+        "y": 171,
+        "w": 314,
+        "h": 319
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 314,
+        "h": 319
+      },
+      "sourceSize": {
+        "w": 314,
+        "h": 319
+      }
+    },
+    "plant": {
+      "frame": {
+        "x": 61,
+        "y": 609,
+        "w": 307,
+        "h": 322
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 307,
+        "h": 322
+      },
+      "sourceSize": {
+        "w": 307,
+        "h": 322
+      }
+    },
+    "lamp": {
+      "frame": {
+        "x": 467,
+        "y": 566,
+        "w": 155,
+        "h": 365
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 155,
+        "h": 365
+      },
+      "sourceSize": {
+        "w": 155,
+        "h": 365
+      }
+    },
+    "rug": {
+      "frame": {
+        "x": 695,
+        "y": 628,
+        "w": 449,
+        "h": 285
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 449,
+        "h": 285
+      },
+      "sourceSize": {
+        "w": 449,
+        "h": 285
+      }
+    },
+    "wall-shelf": {
+      "frame": {
+        "x": 1203,
+        "y": 686,
+        "w": 305,
+        "h": 189
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 305,
+        "h": 189
+      },
+      "sourceSize": {
+        "w": 305,
+        "h": 189
+      }
+    }
+  },
+  "meta": {
+    "image": "home-furniture-v1.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1536,
+      "h": 1024
+    },
+    "scale": "1"
+  }
+}

@@ -1,4 +1,5 @@
 import type { ParsedMap } from "./farm01.types";
+import { clearForestSightlines } from "./forestClearings";
 
 export type ExplorationKind = "forest" | "town";
 export interface MapCell { row: number; col: number }
@@ -75,7 +76,7 @@ export function createForestMap(): ExplorationMap {
     { row: 20, col: 18, frame: "TX Props Stone Bench S", blocking: true },
   ];
   for (const prop of map.props) map.tiles[prop.row][prop.col] = { key: "grass", solid: prop.blocking };
-  return map;
+  return clearForestSightlines(map);
 }
 
 /** Compact workshop square: houses, porch lanes, benches, well and a broad central walk. */

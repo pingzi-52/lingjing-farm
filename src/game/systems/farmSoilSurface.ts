@@ -3,11 +3,20 @@ import type { ParsedMap } from "../../data/maps/farm01.types";
 import type { FarmTileState } from "../../domain/models/Crop";
 import type { Season } from "../../domain/models/types";
 import { grassKey } from "./placeholderAssets";
+import { getGrassVisual, groundFrames } from "./groundVisual";
+import type { HasVisualFrame } from "./cropVisual";
 
 export const SOIL_SURFACE_TEXTURE = "farm-soil-patch-v2";
 export type SoilSurfaceState = "raw" | "dry" | "wet";
 const TILE = 32;
 const STATES: readonly SoilSurfaceState[] = ["raw", "dry", "wet"];
+export function selectSoilSurfaceTexture(has: HasVisualFrame): string | null {
+  for (const texture of ["farm-soil-pixel-v1", SOIL_SURFACE_TEXTURE]) {
+    if (STATES.every(state => Array.from({ length: 16 }, (_, mask) => mask)
+      .every(mask => soilQuarterFrames(state, mask).every(q => has(texture, q.frame))))) return texture;
+  }
+  return null;
+}
 // Cardinal bits N/E/S/W. The source's outer thirds provide only exposed edges.
 export function soilQuarterFrames(state: SoilSurfaceState, neighbors: number): { frame: string; x: number; y: number }[] {
   const quarters = [];
@@ -53,19 +62,20 @@ export class FarmSoilSurface {
   readonly ready: boolean;
   private readonly surfaces = new Map<string, Phaser.GameObjects.Image[]>();
   private readonly underlays: Phaser.GameObjects.Image[] = [];
-  private readonly nativeGrass: boolean;
+  private readonly texturedGrass: boolean;
+  private readonly texture: string | null;
 
   constructor(private readonly scene: Phaser.Scene, private readonly world: ParsedMap, private readonly replaceBed: boolean) {
-    const atlas = scene.textures.exists(SOIL_SURFACE_TEXTURE) ? scene.textures.get(SOIL_SURFACE_TEXTURE) : undefined;
-    this.ready = !!atlas && STATES.every(state => Array.from({ length: 16 }, (_, mask) => mask)
-      .every(mask => soilQuarterFrames(state, mask).every(q => atlas.has(q.frame))));
-    this.nativeGrass = scene.textures.exists("TX Tileset Grass") && scene.textures.get("TX Tileset Grass").has("TX Tileset Grass 0");
+    this.texture = selectSoilSurfaceTexture(groundFrames(scene));
+    this.ready = this.texture !== null;
+    this.texturedGrass = getGrassVisual(0, 0, groundFrames(scene)) !== null;
     if (!this.ready) return;
     // Transparent rims reveal the same grass as the surroundings, never the old opaque soil.
     for (const cell of planSoilSurface(world, {}, replaceBed)) {
       const { row, col } = cell;
-      const image = this.nativeGrass
-        ? scene.add.image(col * TILE + 16, row * TILE + 16, "TX Tileset Grass", `TX Tileset Grass ${(row * 13 + col * 7) % 3}`)
+      const art = getGrassVisual(row, col, groundFrames(scene));
+      const image = art
+        ? scene.add.image(col * TILE + 16, row * TILE + 16, art.texture, art.frame)
         : scene.add.image(col * TILE + 16, row * TILE + 16, grassKey("spring", (row * 13 + col * 7) % 4));
       this.underlays.push(image.setDisplaySize(TILE, TILE).setDepth(0.5));
     }
@@ -80,7 +90,7 @@ export class FarmSoilSurface {
       const plan = soilQuarterFrames(cell.state, cell.neighbors);
       let images = this.surfaces.get(cell.id);
       if (!images) {
-        images = plan.map(q => this.scene.add.image(0, 0, SOIL_SURFACE_TEXTURE, q.frame).setOrigin(0));
+        images = plan.map(q => this.scene.add.image(0, 0, this.texture!, q.frame).setOrigin(0));
         this.surfaces.set(cell.id, images);
       }
       for (let i = 0; i < plan.length; i++) {
@@ -97,7 +107,7 @@ export class FarmSoilSurface {
   applySeason(season: Season): void {
     const tint = { spring: 0xffffff, summer: 0xf5efcc, autumn: 0xe5b781, winter: 0xc8d6df }[season];
     for (const image of this.underlays) {
-      if (this.nativeGrass) image.setTint(tint);
+      if (this.texturedGrass) image.setTint(tint);
       else {
         const row = Math.floor(image.y / TILE), col = Math.floor(image.x / TILE);
         image.setTexture(grassKey(season, (row * 13 + col * 7) % 4));

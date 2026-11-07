@@ -1,0 +1,185 @@
+{
+  "date": "2026-10-23",
+  "origin": "http://127.0.0.1:5177",
+  "isolation": "Temporary Chromium context and synthetic V6 fixture; entry intercepted to expose game only for positioning. Actual E keyboard events execute all sleep actions. Synthetic primary Storage.setItem quota failure.",
+  "failureEvidence": {
+    "day": 2,
+    "daily": {
+      "minute": 1130,
+      "energy": 17
+    },
+    "farming": {
+      "8_12": {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 1,
+          "harvestedCount": 0
+        }
+      }
+    },
+    "exploration": {
+      "forageDay": 2,
+      "picked": [
+        "wood_a"
+      ],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    },
+    "status": "保存失败，本次休息已撤回；请检查浏览器存储空间后再按 E 休息",
+    "rawUnchanged": true
+  },
+  "retryEvidence": {
+    "day": 3,
+    "daily": {
+      "minute": 360,
+      "energy": 100
+    },
+    "farming": {
+      "8_12": {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    },
+    "exploration": {
+      "forageDay": 3,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    },
+    "status": "休息好了 · 春 3日 · 已保存",
+    "saved": {
+      "version": 6,
+      "gold": 500,
+      "day": 3,
+      "inventory": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "hoe",
+            "amount": 1
+          },
+          {
+            "itemId": "watering_can",
+            "amount": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "chest": {
+        "capacity": 24,
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "farming": [
+        {
+          "id": "8_12",
+          "tilled": true,
+          "watered": true,
+          "crop": {
+            "cropId": "dew_radish",
+            "growthDay": 2,
+            "harvestedCount": 0
+          }
+        }
+      ],
+      "daily": {
+        "minute": 360,
+        "energy": 100
+      },
+      "introQuest": {
+        "status": "available",
+        "cropId": null
+      },
+      "exploration": {
+        "forageDay": 3,
+        "picked": [],
+        "forestQuest": "available",
+        "carpenterQuest": "available",
+        "lanternBuilt": false
+      }
+    }
+  },
+  "reloadEvidence": {
+    "day": 3,
+    "daily": {
+      "minute": 360,
+      "energy": 100
+    },
+    "farming": {
+      "8_12": {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    },
+    "exploration": {
+      "forageDay": 3,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "errors": []
+}

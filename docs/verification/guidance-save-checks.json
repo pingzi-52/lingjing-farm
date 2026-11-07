@@ -1,0 +1,780 @@
+{
+  "date": "2026-10-20",
+  "origin": "http://127.0.0.1:5176",
+  "notes": "Isolated Chrome contexts and built production preview. Synthetic save fixtures explicitly used for edge cases; never reads user profile.",
+  "emptyExport": "还没有可导出的存档，请先开始游戏并保存。",
+  "modalBlocksGame": {
+    "saves": 0,
+    "canvasCount": 1,
+    "overlays": 1
+  },
+  "fileFocusLoop": [
+    "save-file",
+    "beta-close",
+    "save-export",
+    "save-file"
+  ],
+  "preview": {
+    "text": "待导入的生活\n\n春 · 第 6 天 · 777 金\n\n文件版本 V6 · 背包、木箱、田地与委托将一并恢复。\n\n当前没有主存档，确认后将创建导入存档。\n\n确认导入并替换\n取消导入",
+    "primary": null
+  },
+  "cancelPrimary": null,
+  "imported": {
+    "version": 6,
+    "gold": 777,
+    "day": 6,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 2
+        },
+        {
+          "itemId": "branch",
+          "amount": 6
+        },
+        {
+          "itemId": "stone",
+          "amount": 4
+        },
+        {
+          "itemId": "wild_mushroom",
+          "amount": 3
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 47
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 6,
+      "picked": [
+        "wood_a"
+      ],
+      "forestQuest": "active",
+      "carpenterQuest": "active",
+      "lanternBuilt": false
+    }
+  },
+  "exported": {
+    "name": "lingjing-farm-day-6.save.json",
+    "exact": true
+  },
+  "rejectedFiles": [
+    {
+      "name": "bad.json",
+      "reason": "文件不是有效的游戏存档，请选择之前导出的 JSON 文件。",
+      "unchanged": true,
+      "confirmButtons": 0
+    },
+    {
+      "name": "future.json",
+      "reason": "这是更新版本的存档，当前游戏无法读取；原存档未改动。",
+      "unchanged": true,
+      "confirmButtons": 0
+    },
+    {
+      "name": "oversized.json",
+      "reason": "文件或当前存档超过 256 KiB，无法安全处理；原存档未改动。",
+      "unchanged": true,
+      "confirmButtons": 0
+    },
+    {
+      "name": "invalid-fields.json",
+      "reason": "文件不是有效的游戏存档，请选择之前导出的 JSON 文件。",
+      "unchanged": true,
+      "confirmButtons": 0
+    }
+  ],
+  "conflict": {
+    "message": "当前存档在预览后发生变化，请重新选择文件查看再导入。",
+    "gold": 778
+  },
+  "failedWrite": {
+    "message": "无法读取或写入浏览器存储，导入未完成。请检查空间后重试。",
+    "unchanged": true
+  },
+  "closedRead": {
+    "previews": 0,
+    "unchanged": true
+  },
+  "latestReadWins": true,
+  "independentBrowser": {
+    "version": 6,
+    "gold": 777,
+    "day": 6,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 2
+        },
+        {
+          "itemId": "branch",
+          "amount": 6
+        },
+        {
+          "itemId": "stone",
+          "amount": 4
+        },
+        {
+          "itemId": "wild_mushroom",
+          "amount": 3
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 47
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 6,
+      "picked": [
+        "wood_a"
+      ],
+      "forestQuest": "active",
+      "carpenterQuest": "active",
+      "lanternBuilt": false
+    }
+  },
+  "farmGuide": "首份收成 · Q 手记\n回小屋休息，等待青露萝卜生长。",
+  "qGuide": "首份收成\n\n交付：青露萝卜 × 1　随身背包 0/1\n\n需 4 个生长日：每天浇水后休息，雨天自动浇水。成熟时靠近按 E 收获。任务无期限，目标不随换季改变。\n\n下一步：回小屋休息，等待青露萝卜生长。\n\n雨天自动浇水 · 最接近收获的一株 2/4 生长日。\n完成报酬 120 金 · 种子仅可领取一次",
+  "questCards": [
+    "首份收成 · 进行中青露萝卜 0/1回小屋休息，等待青露萝卜生长。雨天自动浇水 · 最接近收获的一株 2/4 生长日。",
+    "林间的馈赠 · 可交付野蘑菇 3/3去林缘森林找岚交付材料。",
+    "修缮的材料 · 可交付树枝 6/6 · 溪石 4/4去溪桥镇找阿榆交付材料。"
+  ],
+  "refreshRestored": {
+    "version": 6,
+    "gold": 777,
+    "day": 6,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 2
+        },
+        {
+          "itemId": "branch",
+          "amount": 6
+        },
+        {
+          "itemId": "stone",
+          "amount": 4
+        },
+        {
+          "itemId": "wild_mushroom",
+          "amount": 3
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 47
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 6,
+      "picked": [
+        "wood_a"
+      ],
+      "forestQuest": "active",
+      "carpenterQuest": "active",
+      "lanternBuilt": false
+    }
+  },
+  "forestCueBefore": {
+    "cue": "! 材料已齐 · 可交付",
+    "context": "E 交付材料 · 领取报酬"
+  },
+  "forestDelivered": {
+    "cue": "✓ 委托已完成",
+    "save": {
+      "version": 6,
+      "gold": 857,
+      "day": 6,
+      "inventory": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "hoe",
+            "amount": 1
+          },
+          {
+            "itemId": "watering_can",
+            "amount": 1
+          },
+          {
+            "itemId": "dew_radish_seed",
+            "amount": 2
+          },
+          {
+            "itemId": "branch",
+            "amount": 6
+          },
+          {
+            "itemId": "stone",
+            "amount": 4
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "chest": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "dew_radish",
+            "amount": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "farming": [
+        {
+          "id": "8_12",
+          "tilled": true,
+          "watered": true,
+          "crop": {
+            "cropId": "dew_radish",
+            "growthDay": 2,
+            "harvestedCount": 0
+          }
+        }
+      ],
+      "daily": {
+        "minute": 880,
+        "energy": 47
+      },
+      "introQuest": {
+        "status": "active",
+        "cropId": "dew_radish"
+      },
+      "exploration": {
+        "forageDay": 6,
+        "picked": [
+          "wood_a"
+        ],
+        "forestQuest": "completed",
+        "carpenterQuest": "active",
+        "lanternBuilt": false
+      }
+    }
+  },
+  "noDoubleForestReward": true,
+  "townCueBefore": {
+    "cue": "! 材料已齐 · 可交付",
+    "context": "E 交付材料 · 领取报酬",
+    "x": 586.6666666666673,
+    "y": 407.9999999999997
+  },
+  "townDelivered": {
+    "cue": "✓ 委托已完成",
+    "save": {
+      "version": 6,
+      "gold": 997,
+      "day": 6,
+      "inventory": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "hoe",
+            "amount": 1
+          },
+          {
+            "itemId": "watering_can",
+            "amount": 1
+          },
+          {
+            "itemId": "dew_radish_seed",
+            "amount": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "chest": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "dew_radish",
+            "amount": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "farming": [
+        {
+          "id": "8_12",
+          "tilled": true,
+          "watered": true,
+          "crop": {
+            "cropId": "dew_radish",
+            "growthDay": 2,
+            "harvestedCount": 0
+          }
+        }
+      ],
+      "daily": {
+        "minute": 940,
+        "energy": 47
+      },
+      "introQuest": {
+        "status": "active",
+        "cropId": "dew_radish"
+      },
+      "exploration": {
+        "forageDay": 6,
+        "picked": [
+          "wood_a"
+        ],
+        "forestQuest": "completed",
+        "carpenterQuest": "completed",
+        "lanternBuilt": false
+      }
+    }
+  },
+  "journalAfter": [
+    "首份收成 · 进行中青露萝卜 0/1回小屋休息，等待青露萝卜生长。雨天自动浇水 · 最接近收获的一株 2/4 生长日。",
+    "林间的馈赠 · 已完成野蘑菇 0/3委托已完成，可继续探索与制作。",
+    "修缮的材料 · 已完成树枝 0/6 · 溪石 0/4委托已完成，可继续探索与制作。"
+  ],
+  "roundTripAfterQuests": {
+    "area": "farm",
+    "save": {
+      "version": 6,
+      "gold": 997,
+      "day": 6,
+      "inventory": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "hoe",
+            "amount": 1
+          },
+          {
+            "itemId": "watering_can",
+            "amount": 1
+          },
+          {
+            "itemId": "dew_radish_seed",
+            "amount": 2
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "chest": {
+        "capacity": 24,
+        "slots": [
+          {
+            "itemId": "dew_radish",
+            "amount": 1
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "farming": [
+        {
+          "id": "8_12",
+          "tilled": true,
+          "watered": true,
+          "crop": {
+            "cropId": "dew_radish",
+            "growthDay": 2,
+            "harvestedCount": 0
+          }
+        }
+      ],
+      "daily": {
+        "minute": 950,
+        "energy": 47
+      },
+      "introQuest": {
+        "status": "active",
+        "cropId": "dew_radish"
+      },
+      "exploration": {
+        "forageDay": 6,
+        "picked": [
+          "wood_a"
+        ],
+        "forestQuest": "completed",
+        "carpenterQuest": "completed",
+        "lanternBuilt": false
+      }
+    }
+  },
+  "durableAfterAutosaves": {
+    "current": 888,
+    "ordinary": 888,
+    "beforeImport": "{\"version\":6,\"gold\":777,\"day\":6,\"inventory\":{\"capacity\":24,\"slots\":[{\"itemId\":\"hoe\",\"amount\":1},{\"itemId\":\"watering_can\",\"amount\":1},{\"itemId\":\"dew_radish_seed\",\"amount\":2},{\"itemId\":\"branch\",\"amount\":6},{\"itemId\":\"stone\",\"amount\":4},{\"itemId\":\"wild_mushroom\",\"amount\":3},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},\"chest\":{\"capacity\":24,\"slots\":[{\"itemId\":\"dew_radish\",\"amount\":1},null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},\"farming\":[{\"id\":\"8_12\",\"tilled\":true,\"watered\":true,\"crop\":{\"cropId\":\"dew_radish\",\"growthDay\":2,\"harvestedCount\":0}}],\"daily\":{\"minute\":820,\"energy\":47},\"introQuest\":{\"status\":\"active\",\"cropId\":\"dew_radish\"},\"exploration\":{\"forageDay\":6,\"picked\":[\"wood_a\"],\"forestQuest\":\"active\",\"carpenterQuest\":\"active\",\"lanternBuilt\":false}}"
+  },
+  "durableDownload": {
+    "name": "lingjing-farm-before-import-day-6.save.json",
+    "exact": true
+  },
+  "durableRecoveryPreview": "待导入的生活\n\n春 · 第 6 天 · 777 金\n\n文件版本 V6 · 背包、木箱、田地与委托将一并恢复。\n\n确认后替换当前进度，原始存档会保留为导入前备份；自动保存不会更新它，可在本页导出。\n\n确认导入并替换\n取消导入",
+  "backupCancelKeepsCurrent": true,
+  "completedCards": [
+    "首份收成 · 进行中青露萝卜 0/1回小屋休息，等待青露萝卜生长。雨天自动浇水 · 最接近收获的一株 2/4 生长日。",
+    "林间的馈赠 · 已完成已交付：野蘑菇 ×3委托已完成，可继续探索与制作。",
+    "修缮的材料 · 已完成已交付：树枝 ×6 · 溪石 ×4委托已完成，可继续探索与制作。"
+  ],
+  "finalPreviewCopy": "灵镜档案 · 林缘农场",
+  "errors": [],
+  "errorsIndependentBrowser": [],
+  "verification": {
+    "tests": 755,
+    "testFiles": 42,
+    "buildModules": 76,
+    "diffCheckPassed": true,
+    "review": "Independent read-only review; 92 focused tests independently rerun; copy finding fixed"
+  }
+}

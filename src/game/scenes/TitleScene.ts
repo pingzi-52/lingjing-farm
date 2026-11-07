@@ -4,12 +4,15 @@ import { getGameSession } from "../systems/GameSession";
 import { FarmEnvironment } from "../systems/farmEnvironment";
 import { getFarmAudio } from "../systems/farmAudio";
 import { AudioSettingsMenu } from "../../ui/AudioSettingsMenu";
+import { SaveManagementMenu } from "../../ui/SaveManagementMenu";
+import { getGrassVisual, groundFrames } from "../systems/groundVisual";
 
 export class TitleScene extends Phaser.Scene {
   private info!: Phaser.GameObjects.Text;
   private entering = false;
   private freshArmed = false;
   private audioSettings!: AudioSettingsMenu;
+  private saveManagement!: SaveManagementMenu;
   constructor() { super("title"); }
   preload(): void { FarmEnvironment.preload(this); }
   create(): void {
@@ -17,6 +20,10 @@ export class TitleScene extends Phaser.Scene {
     this.freshArmed = false;
     const session = getGameSession();
     this.audioSettings = new AudioSettingsMenu(this);
+    this.saveManagement = new SaveManagementMenu(this, () => {
+      getGameSession().loadGame();
+      this.scene.restart();
+    });
     getFarmAudio().setEnvironment("title", session.weather.current().type, session.life.minute);
     getFarmAudio().setPaused(true);
     const hasSave = session.save.load() !== null;
@@ -25,7 +32,9 @@ export class TitleScene extends Phaser.Scene {
     new FarmEnvironment(this);
     if (this.textures.exists("TX Tileset Grass")) {
       for (let r = 0; r < 12; r++) for (let c = 0; c < 16; c++) {
-        this.add.image(c * 32, r * 32, "TX Tileset Grass", `TX Tileset Grass ${(r + c) % 3}`).setOrigin(0);
+        const art = getGrassVisual(r, c, groundFrames(this));
+        if (!art) continue;
+        this.add.image(c * 32, r * 32, art.texture, art.frame).setOrigin(0).setDisplaySize(32, 32);
       }
       if (this.textures.get("TX Plant").has("farm-tree-T3")) {
         for (const [x, y, type] of [[45, 175, "T3"], [470, 180, "T2"], [50, 390, "T2"], [463, 391, "T3"]] as const) {
@@ -41,11 +50,12 @@ export class TitleScene extends Phaser.Scene {
       fontSize: "14px", color: "#c4cda7", fontFamily: "monospace",
     }).setOrigin(0.5);
     const option = (y: number, label: string, action: () => void) => {
-      this.add.rectangle(256, y, 248, 39, 0x5b452b).setStrokeStyle(2, 0xad8750);
-      const text = this.add.text(256, y, label, { fontSize: "17px", fontFamily: "monospace", color: "#f4e4bd" })
+      this.add.rectangle(256, y + 2, 248, 39, 0x14251a, 0.25);
+      this.add.rectangle(256, y, 248, 39, 0xf0e5c9).setStrokeStyle(1, 0x927652);
+      const text = this.add.text(256, y, label, { fontSize: "17px", fontFamily: "monospace", color: "#3f503b" })
         .setOrigin(0.5).setInteractive({ useHandCursor: true }).on("pointerdown", action);
-      text.on("pointerover", () => text.setColor("#fff5cf"));
-      text.on("pointerout", () => text.setColor("#f4e4bd"));
+      text.on("pointerover", () => text.setColor("#779158"));
+      text.on("pointerout", () => text.setColor("#3f503b"));
     };
     option(176, hasSave ? "继续农场　Enter" : stored ? "存档需要恢复" : "开始农场　Enter", () => this.enterFarm(!stored));
     option(222, "新的一段生活　N", () => this.enterFarm(true));
@@ -55,19 +65,25 @@ export class TitleScene extends Phaser.Scene {
         fontFamily: "monospace", fontSize: "11px", color: "#d0cfb2", align: "center", wordWrap: { width: 452 },
       }).setOrigin(0.5);
     const keyboard = this.input.keyboard!;
-    this.add.text(256, 358, "M 声音设置", { fontSize: "12px", fontFamily: "monospace", color: "#dfc48e" })
+    this.add.text(172, 358, "M 声音设置", { fontSize: "12px", fontFamily: "monospace", color: "#dfc48e" })
       .setOrigin(0.5).setInteractive({ useHandCursor: true }).on("pointerdown", () => this.audioSettings.open());
-    keyboard.on("keydown-M", () => { if (!this.entering) this.audioSettings.open(); });
+    this.add.text(344, 358, "S 存档管理", { fontSize: "12px", fontFamily: "monospace", color: "#dfc48e" })
+      .setOrigin(0.5).setInteractive({ useHandCursor: true }).on("pointerdown", () => this.openSaveManagement());
+    keyboard.on("keydown-M", () => { if (!this.entering && !this.saveManagement.isOpen) this.audioSettings.open(); });
+    keyboard.on("keydown-S", this.openSaveManagement, this);
     keyboard.on("keydown-ENTER", () => this.enterFarm(!stored));
     keyboard.on("keydown-N", () => this.enterFarm(true));
     keyboard.on("keydown-R", () => this.restoreBackup());
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.audioSettings.destroy(); getFarmAudio().setPaused(true);
-      for (const key of ["keydown-ENTER", "keydown-N", "keydown-R", "keydown-M"]) keyboard.off(key);
+      this.audioSettings.destroy(); this.saveManagement.destroy(); getFarmAudio().setPaused(true);
+      for (const key of ["keydown-ENTER", "keydown-N", "keydown-R", "keydown-M", "keydown-S"]) keyboard.off(key);
     });
   }
+  private openSaveManagement(): void {
+    if (!this.entering && !this.audioSettings.isOpen) this.saveManagement.open();
+  }
   private enterFarm(fresh: boolean): void {
-    if (this.entering || this.audioSettings.isOpen) return;
+    if (this.entering || this.audioSettings.isOpen || this.saveManagement.isOpen) return;
     const session = getGameSession();
     if (fresh) {
       if (session.save.hasStoredData() && !this.freshArmed) {
@@ -84,7 +100,7 @@ export class TitleScene extends Phaser.Scene {
     this.scene.start(SCENE_FARM);
   }
   private restoreBackup(): void {
-    if (this.entering || this.audioSettings.isOpen) return;
+    if (this.entering || this.audioSettings.isOpen || this.saveManagement.isOpen) return;
     const session = getGameSession();
     if (!session.save.restoreBackup() || !session.loadGame()) {
       this.info.setText("没有可读取的备份，当前存档没有被替换。"); return;

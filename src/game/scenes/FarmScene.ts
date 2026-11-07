@@ -12,6 +12,8 @@ import type { Season } from "../../domain/models/types";
 // ── P5-A：纹理 key 解析唯一来源（与 placeholderAssets 共用，避免命名漂移）──
 import { grassKey, rockKey, treeKey, waterKey } from "../systems/placeholderAssets";
 import { FarmEnvironment } from "../systems/farmEnvironment";
+import { getRoadVisual, groundFrames } from "../systems/groundVisual";
+import { SceneHud, HUD_PALETTE } from "../systems/sceneHud";
 import { FarmWater } from "../systems/farmWater";
 import { FarmSoilSurface } from "../systems/farmSoilSurface";
 import { FarmAtmosphere } from "../systems/farmAtmosphere";
@@ -20,7 +22,6 @@ import { chooseFarmhousePlot, type FarmhousePlot } from "../systems/farmhousePlo
 import { chooseMerchantPlot } from "../systems/merchantPlot";
 import { MerchantResident } from "../systems/merchantResident";
 import { MerchantDialogue } from "../../ui/MerchantDialogue";
-import { getCrop } from "../../data/crops";
 import { getItemVisual } from "../systems/itemVisual";
 import { getFarmAudio } from "../systems/farmAudio";
 import { AudioSettingsMenu } from "../../ui/AudioSettingsMenu";
@@ -28,6 +29,20 @@ import { CraftingMenu } from "../../ui/CraftingMenu";
 import { TravelMenu } from "../../ui/TravelMenu";
 import { openAreaExits, areaExits, arrivalFrom, type AreaId } from "../../data/maps/areaConnections";
 import { AreaPassage } from "../systems/areaPassage";
+import { getIntroObjective } from "../systems/objectiveGuide";
+import { getPointerFarmTarget, type PointerFarmTarget } from "../systems/farmingTarget";
+import { getPlotGuide, type PlotGuide } from "../systems/farmingGuide";
+import { FarmPlotInfo } from "../systems/farmPlotInfo";
+import { FarmingJournal } from "../../ui/FarmingJournal";
+import type { FarmCommand } from "../systems/GameSession";
+
+const FARM_ERRORS: Record<string, string> = {
+  SAVE_FAILED: "保存失败，本次农作已撤回；请检查浏览器存储空间。",
+  TOO_TIRED: "体力不足，回小屋休息或吃一份菌菇餐。", INVENTORY_FULL: "背包已满，作物仍留在田里。",
+  NOT_TILLED: "请先用锄头开垦这块地。", ALREADY_HAS_CROP: "这里已经种有作物。",
+  NOT_MATURE: "作物还没有成熟，先照料它再休息。", CROP_PRESENT: "这里有作物，不能还原；先收获并保留再生植株。",
+  NOT_ENOUGH: "随身种子不足，请先从木箱取出或去集市购买。", INVALID_TILE: "这里不能耕种。",
+};
 
 const TILE_TEXTURE: Record<TileDef["key"], string> = {
   grass: "tile_grass",
@@ -88,8 +103,6 @@ export class FarmScene extends Phaser.Scene {
   private pond!: FarmWater;
   private soilSurface!: FarmSoilSurface;
   private atmosphere!: FarmAtmosphere;
-  private lifeHud!: Phaser.GameObjects.Text;
-  private energyBar!: Phaser.GameObjects.Rectangle;
   private clockPaused = true;
   private lastLifeKey = "";
   private readonly onVisibility = (): void => {
@@ -110,7 +123,12 @@ export class FarmScene extends Phaser.Scene {
   private questHint!: Phaser.GameObjects.Text;
   private lastQuestKey = "";
   private saveNotice!: Phaser.GameObjects.Text;
-  private hud!: Phaser.GameObjects.Text;
+  private hud!: SceneHud;
+  private journal!: FarmingJournal;
+  private plotInfo!: FarmPlotInfo;
+  private pointerActive = false;
+  private lastPlotKey = "";
+  private plotGuide?: PlotGuide;
   private enteringHome = false;
   private returningHome = false;
   private housePlot: FarmhousePlot | null = null;
@@ -127,8 +145,6 @@ export class FarmScene extends Phaser.Scene {
   private tilledSprites = new Map<string, Phaser.GameObjects.Image>();
   private lastSnapshotKey = "";
   private lastTilledKey = "";
-  private selectedNameText!: Phaser.GameObjects.Text;
-  private selectedIcon!: Phaser.GameObjects.Image;
   private waterImages: Phaser.GameObjects.Image[] = [];
   private waterFrame = false;
   private waterTimer?: Phaser.Time.TimerEvent;
@@ -144,10 +160,10 @@ export class FarmScene extends Phaser.Scene {
   private season: Season = "spring";
 
   // ── P3：木质 HUD 面板与快捷栏选中态 ───────────
-  private hotbarSlots: Phaser.GameObjects.Image[] = [];
+  private hotbarSlots: Phaser.GameObjects.Rectangle[] = [];
   private hotbarIcons: Phaser.GameObjects.Image[] = [];
   private hotbarCounts: Phaser.GameObjects.Text[] = [];
-  private hotbarSelected!: Phaser.GameObjects.Image;
+  private hotbarSelected!: Phaser.GameObjects.Rectangle;
   private lastHotbarKey = "";
 
   constructor() {
@@ -173,6 +189,7 @@ export class FarmScene extends Phaser.Scene {
   create(): void {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.shutdown, this);
     this.enteringHome = false;
+    this.pointerActive = false; this.lastPlotKey = ""; this.plotGuide = undefined;
     this.physics.world.resume();
     this.input.enabled = true;
     this.input.keyboard!.enabled = true;
@@ -266,11 +283,11 @@ export class FarmScene extends Phaser.Scene {
         .setOrigin(0.5, 1).setDisplaySize(160, 148).setDepth(FarmEnvironment.objectDepth((plot.row + 2) * TILE));
       const body = solids.create((plot.col + 2) * TILE, (plot.row + 1) * TILE, "tile_fence") as Phaser.Physics.Arcade.Image;
       body.setDisplaySize(4 * TILE, 2 * TILE).setVisible(false).refreshBody();
-      if (this.textures.exists("farm-home-path")) {
-        for (let r = plot.row + 2; r < plot.row + 4; r++) for (let c = plot.col + 1; c <= plot.col + 2; c++) {
-          this.add.image(c * TILE, r * TILE, "farm-home-path", c === plot.col + 1 ? "w" : "e")
-            .setOrigin(0).setDisplaySize(TILE, TILE).setDepth(1);
-        }
+      for (let r = plot.row + 2; r < plot.row + 4; r++) for (let c = plot.col + 1; c <= plot.col + 2; c++) {
+        const art = getRoadVisual(c === plot.col + 1 ? "w" : "e", groundFrames(this));
+        if (!art) continue;
+        this.add.image(c * TILE, r * TILE, art.texture, art.frame)
+          .setOrigin(0).setDisplaySize(TILE, TILE).setDepth(1);
       }
     }
 
@@ -332,63 +349,13 @@ export class FarmScene extends Phaser.Scene {
     cam.startFollow(this.player.sprite, true, 0.1, 0.1);
     cam.setZoom(1).setRoundPixels(true);
 
-    // P3：顶部左木质背板（金币 + 季节日期），不随摄像机滚动
-    this.add
-      .image(0, 0, "panel_wide")
-      .setOrigin(0, 0)
-      .setScrollFactor(0)
-      .setDepth(99)
-      .setPosition(8, 8).setDisplaySize(204, 58);
-
-    // HUD：金币图标 + 文本（固定在屏幕上，不随摄像机滚动）
-    const goldVisual = getItemVisual("gold", this.hasVisualFrame);
-    this.add
-      .image(24, 22, goldVisual.texture, goldVisual.frame)
-      .setScrollFactor(0)
-      .setDepth(100)
-      .setDisplaySize(20, 20);
-    this.hud = this.add
-      .text(46, 12, "", {
-        fontFamily: "monospace",
-        fontSize: "12px",
-        color: "#f3ead3",
-      })
-      .setScrollFactor(0)
-      .setDepth(100);
-
-    this.lifeHud = this.add.text(18, 35, "", {
-      fontFamily: "monospace", fontSize: "11px", color: "#f0dfb9",
-    }).setScrollFactor(0).setDepth(100);
-    this.add.rectangle(18, 56, 168, 3, 0x493c2a).setOrigin(0, 0.5).setScrollFactor(0).setDepth(100);
-    this.energyBar = this.add.rectangle(18, 56, 168, 3, 0x8da358)
-      .setOrigin(0, 0.5).setScrollFactor(0).setDepth(101);
-    // T4-3：右上角显示当前选中物品（P3：木质背板 + 图标 + 名称）
-    this.add
-      .image(0, 0, "panel_wide")
-      .setOrigin(1, 0)
-      .setScrollFactor(0)
-      .setDepth(99)
-      .setPosition(this.scale.width - 8, 8);
-    this.selectedNameText = this.add
-      .text(this.scale.width - 16, 13, "", {
-        fontFamily: "monospace",
-        fontSize: "12px",
-        color: "#f3ead3",
-      })
-      .setOrigin(1, 0)
-      .setScrollFactor(0)
-      .setDepth(100);
-    // P1：选中物品图标（16×16，随名称动态定位在文字左侧，不遮挡其它 HUD）
-    this.selectedIcon = this.add
-      .image(0, 14, "icon_empty")
-      .setOrigin(1, 0)
-      .setScrollFactor(0)
-      .setDepth(100);
+    this.hud = new SceneHud(this);
+    this.plotInfo = new FarmPlotInfo(this);
     this.refreshSelectedName();
 
     // P3：操作提示上移至快捷栏之上（快捷栏贴底，二者留 4px 间隙不叠压）
     this.add
-      .text(12, this.scale.height - 52, "WASD 移动 · 左键使用 · E 交互 · Q 任务 · B 集市 · I 背包 · M 声音", {
+      .text(12, this.scale.height - 52, "WASD 移动 · 左键/空格 农作 · E 交互 · F 农务 · Q 任务 · B/I 背包集市", {
         fontFamily: "monospace",
         fontSize: "10px",
         color: "#cfe3c5",
@@ -407,11 +374,12 @@ export class FarmScene extends Phaser.Scene {
     this.audioSettings = new AudioSettingsMenu(this);
     this.crafting = new CraftingMenu(this);
     this.travel = new TravelMenu(this);
+    this.journal = new FarmingJournal(this, () => this.getActiveTarget()?.tileId);
     this.dialogue = new MerchantDialogue(this, () => this.menu.open("market"),
       () => this.merchant?.near(this.player.x, this.player.y) ?? false, () => this.merchant === null);
     this.questHint = this.add.text(12, 86, "", {
-      fontFamily: "monospace", fontSize: "10px", color: "#f2dfaa", backgroundColor: "#302e1cbb",
-      padding: { x: 5, y: 4 }, wordWrap: { width: 224 },
+      fontFamily: '"Microsoft YaHei", sans-serif', fontSize: "11px", color: "#f2e7cb", backgroundColor: "#354331dd",
+      padding: { x: 6, y: 5 }, lineSpacing: 3, wordWrap: { width: 224 },
     }).setScrollFactor(0).setDepth(107);
     this.contextHint = this.add.text(this.scale.width / 2, this.scale.height - 76, "", {
       fontFamily: "monospace", fontSize: "12px", color: "#f2dfaa", backgroundColor: "#302e1c",
@@ -430,6 +398,13 @@ export class FarmScene extends Phaser.Scene {
     k.on("keydown-M", () => { if (!this.busy()) this.audioSettings.open(); });
     k.on("keydown-K", () => { if (!this.busy()) this.crafting.open(); });
     k.on("keydown-L", () => { if (!this.busy()) this.travel.open(); });
+    k.on("keydown-F", () => { if (!this.busy()) this.journal.open(); });
+    k.on("keydown-X", () => this.reclaimPlot());
+    k.on("keydown-SPACE", (event: KeyboardEvent) => {
+      if (this.busy()) return;
+      event.preventDefault(); this.pointerActive = false; this.useTool(this.getActiveTarget());
+    });
+    k.on("keydown", this.onKeyboardTarget, this);
 
     // T4-3：数字键 1-8 → 快捷栏选择
     for (let i = 0; i < NUM_KEYS.length; i++) {
@@ -438,6 +413,7 @@ export class FarmScene extends Phaser.Scene {
 
     // T4-3：鼠标左键使用当前选中物品
     this.input.on("pointerdown", this.onPointerDown, this);
+    this.input.on("pointermove", this.onPointerMove, this);
 
     this.saveCurrent();
 
@@ -451,7 +427,7 @@ export class FarmScene extends Phaser.Scene {
   }
 
   private busy(): boolean {
-    return this.enteringHome || !!(this.menu?.isOpen || this.dialogue?.isOpen || this.audioSettings?.isOpen || this.crafting?.isOpen || this.travel?.isOpen);
+    return this.enteringHome || !!(this.menu?.isOpen || this.dialogue?.isOpen || this.audioSettings?.isOpen || this.crafting?.isOpen || this.travel?.isOpen || this.journal?.isOpen);
   }
 
   private updateLantern(): void {
@@ -488,10 +464,10 @@ export class FarmScene extends Phaser.Scene {
     for (let i = 0; i < count; i++) {
       const x = startX + i * (slot + gap);
       const slotImg = this.add
-        .image(x, y, "panel_slot")
+        .rectangle(x, y, slot, slot, HUD_PALETTE.paper)
+        .setStrokeStyle(1, HUD_PALETTE.edge)
         .setScrollFactor(0)
         .setDepth(98)
-        .setScale(scale)
         .setOrigin(0.5);
       this.hotbarSlots.push(slotImg);
       const iconImg = this.add
@@ -502,19 +478,19 @@ export class FarmScene extends Phaser.Scene {
         .setOrigin(0.5);
       this.hotbarIcons.push(iconImg);
       this.add.text(x - 14, y - 14, String(i + 1), {
-        fontFamily: "monospace", fontSize: "8px", color: "#ead8aa", stroke: "#443422", strokeThickness: 2,
+        fontFamily: "monospace", fontSize: "8px", color: HUD_PALETTE.muted, stroke: "#f0e5c9", strokeThickness: 2,
       }).setScrollFactor(0).setDepth(102);
       this.hotbarCounts.push(this.add.text(x + 13, y + 13, "", {
-        fontFamily: "monospace", fontSize: "9px", color: "#fff0c7", stroke: "#443422", strokeThickness: 2,
+        fontFamily: "monospace", fontSize: "9px", color: HUD_PALETTE.ink, stroke: "#f0e5c9", strokeThickness: 2,
       }).setOrigin(1, 1).setScrollFactor(0).setDepth(102));
     }
 
     // 选中高亮（单例，初始在 0 号格；depth 压最上但不挡游戏区）
     this.hotbarSelected = this.add
-      .image(startX, y, "panel_slot_selected")
+      .rectangle(startX, y, slot, slot, HUD_PALETTE.green, 0)
+      .setStrokeStyle(2, HUD_PALETTE.green)
       .setScrollFactor(0)
       .setDepth(100)
-      .setScale(scale)
       .setOrigin(0.5);
 
     this.updateHotbar();
@@ -552,12 +528,8 @@ export class FarmScene extends Phaser.Scene {
       const def = getItem(itemId);
       text = def ? def.name : itemId;
     }
-    this.selectedNameText.setText(text);
-    // 文字 origin(1,0) 右缘 = scale.width-12；图标置于文字左侧 6px
     const visual = getItemVisual(itemId, this.hasVisualFrame);
-    this.selectedIcon.setTexture(visual.texture, visual.frame).setDisplaySize(16, 16)
-      .setVisible(Boolean(itemId) && visual.texture !== "icon_empty");
-    this.selectedIcon.setPosition(this.selectedNameText.x - this.selectedNameText.width - 6, 13);
+    this.hud.setDetail(`手持 · ${text}`, visual);
   }
 
   // ── T4-3：目标格计算（含边界检查），越界返回 null ──
@@ -572,96 +544,102 @@ export class FarmScene extends Phaser.Scene {
     return { tileId: tileIdOf(t.row, t.col), row: t.row, col: t.col, key: def.key };
   }
 
-  // ── T4-3：鼠标左键 —— 按当前选中物品分发（结果如实提示，失败不伪装成功）──
-  private onPointerDown(): void {
+  private readonly onPointerMove = (): void => { this.pointerActive = true; };
+  private readonly onKeyboardTarget = (event: KeyboardEvent): void => {
+    if (/^(Key[WASD]|Arrow(Up|Down|Left|Right))$/.test(event.code)) this.pointerActive = false;
+  };
+
+  private isWorldPointer(pointer: Phaser.Input.Pointer): boolean {
+    if (pointer.x < 0 || pointer.x >= this.scale.width || pointer.y < 64 || pointer.y >= this.scale.height - 86) return false;
+    if (this.plotInfo?.contains(pointer.x, pointer.y) || this.questHint?.getBounds().contains(pointer.x, pointer.y)) return false;
+    return true;
+  }
+
+  private getActiveTarget(): PointerFarmTarget | null {
+    if (this.pointerActive) {
+      const pointer = this.input.activePointer;
+      if (!this.isWorldPointer(pointer)) return null;
+      const point = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      return getPointerFarmTarget(this.world, this.player, point, this.houseReserved);
+    }
+    const target = this.getTargetTileId();
+    return target && (target.key === "grass" || target.key === "soil") ? { ...target, key: target.key } : null;
+  }
+
+  private onPointerDown(pointer: Phaser.Input.Pointer): void {
+    if (this.busy() || !pointer.leftButtonDown()) return;
+    const slot = this.hotbarSlots.findIndex(image => image.getBounds().contains(pointer.x, pointer.y));
+    if (slot >= 0) { this.selectSlot(slot); this.pointerActive = false; return; }
+    if (!this.isWorldPointer(pointer)) return;
+    this.pointerActive = true;
+    this.useTool(this.getActiveTarget());
+  }
+
+  private useTool(target: PointerFarmTarget | null): void {
     if (this.busy()) return;
-    const session = getGameSession();
-    const itemId = session.inventory.hotbar()[this.selectedSlot];
+    const session = getGameSession(), itemId = session.inventory.hotbar()[this.selectedSlot];
     if (!itemId) return;
     if (itemId === "mushroom_meal") {
       const result = session.eatMeal();
       getFarmAudio().play(result.ok ? "confirm" : "error");
-      this.toast(result.ok ? "吃好了，体力恢复" : result.reason === "ENERGY_FULL" ? "体力充足，留着稍后吃" : "吃饭未完成，请重试");
+      this.toast(result.ok ? "吃好了，体力恢复" : FARM_ERRORS[result.reason] ?? "现在不需要吃饭。");
       return;
     }
-    const target = this.getTargetTileId();
-    if (!target) return;
+    if (!target) { getFarmAudio().play("error"); this.toast("走到相邻地块，再使用工具或种子。"); return; }
+    const definition = getItem(itemId);
+    const kind = itemId === "hoe" ? "till" : itemId === "watering_can" ? "water" : definition?.category === ItemCategory.Seed ? "plant" : null;
+    if (!kind) { this.toast("选择锄头、水壶或种子来照料田地。"); return; }
+    const before = session.farming.serialize()[target.tileId];
+    const command: FarmCommand = kind === "plant" ? { kind, tileId: target.tileId, seedItemId: itemId } : { kind, tileId: target.tileId };
+    const result = session.performFarmAction(command);
+    if (!result.ok) { this.farmFailure(result.reason); return; }
+    this.saveNotice.setText("");
+    this.player.faceToward((target.col + 0.5) * TILE, (target.row + 0.5) * TILE);
+    this.player.playAction(kind === "till" ? "hoe" : kind === "water" ? "water" : "plant");
+    if (kind === "till" && before?.tilled) { this.toast("这块地已经开垦好了。"); return; }
+    if (kind === "water" && before?.watered) { this.toast(session.weather.current().autoWater ? "雨水已经润湿了土地。" : "今天已经浇过水了。"); return; }
+    getFarmAudio().play(kind === "till" ? "hoe" : kind === "water" ? "water" : "plant");
+    this.farmParticles(target, kind);
+    if (kind !== "till") this.toast(kind === "plant" ? "播种成功 · 水分充足后过夜成长" : "浇水完成 · 今晚可以安心休息");
+  }
 
-    const def = getItem(itemId);
-    if (!def) return;
+  private reclaimPlot(): void {
+    if (this.busy()) return;
+    const target = this.getActiveTarget();
+    if (!target) { this.toast("靠近空耕地，再按 X 还原。"); return; }
+    const result = getGameSession().performFarmAction({ kind: "reclaim", tileId: target.tileId });
+    if (!result.ok) { this.farmFailure(result.reason); return; }
+    this.saveNotice.setText(""); getFarmAudio().play("hoe");
+    this.player.faceToward((target.col + 0.5) * TILE, (target.row + 0.5) * TILE);
+    this.player.playAction("hoe"); this.farmParticles(target, "reclaim"); this.toast("已还原未耕状态 · 体力 -1");
+  }
 
-    // 按农田实际状态判定（非静态地图 key），与领域层规则一致
-    const snapTile = session.farming.serialize()[target.tileId];
+  private farmFailure(reason: string): void {
+    getFarmAudio().play("error");
+    const message = FARM_ERRORS[reason] ?? "农作未完成，请检查地块与随身物品。";
+    if (reason === "SAVE_FAILED") this.saveNotice.setText(message);
+    this.toast(message);
+  }
 
-    if (itemId === "hoe") {
-      if (!TILLABLE.has(target.key)) return; // 地形限制保持（grass | soil）
-      const r = session.actions.till(target.tileId);
-      if (!r.ok) { getFarmAudio().play("error"); this.toast(r.reason === "TOO_TIRED" ? "体力不足，回小屋床边休息" : `开垦失败：${r.reason}`); }
-      else { this.player.playAction("hoe"); if (!snapTile?.tilled) getFarmAudio().play("hoe"); this.saveCurrent(); }
-      // 成功：靠 T4-3 开垦覆盖层视觉反馈，不打扰式 toast
-    } else if (itemId === "watering_can") {
-      if (!snapTile) {
-        getFarmAudio().play("error");
-        this.toast("请先开垦这块地");
-        return;
-      }
-      const r = session.actions.water(target.tileId);
-      if (!r.ok) {
-        getFarmAudio().play("error");
-        this.toast(r.reason === "TOO_TIRED" ? "体力不足，回小屋床边休息" : `浇水失败：${r.reason}`);
-        return;
-      }
-      this.player.playAction("water");
-      if (!snapTile.watered) getFarmAudio().play("water");
-      this.toast(session.weather.current().autoWater ? "雨水已经浇湿了土地" : "浇水完成");
-      this.saveCurrent();
-    } else if (def.category === ItemCategory.Seed) {
-      if (!snapTile) {
-        getFarmAudio().play("error");
-        this.toast("请先开垦这块地");
-        return;
-      }
-      if (snapTile.crop) {
-        getFarmAudio().play("error");
-        this.toast("这里已经有作物了");
-        return;
-      }
-      const r = session.actions.plant(target.tileId, itemId);
-      if (!r.ok) {
-        getFarmAudio().play("error");
-        this.toast(r.reason === "TOO_TIRED" ? "体力不足，回小屋床边休息" : `播种失败：${r.reason}`);
-        return;
-      }
-      this.player.playAction("plant");
-      getFarmAudio().play("plant");
-      this.toast("播种成功");
-      this.saveCurrent();
+  private farmParticles(target: PointerFarmTarget, kind: FarmCommand["kind"]): void {
+    const color = kind === "water" ? 0xa6dce5 : kind === "harvest" ? 0xf4d47f : 0xb98b50;
+    for (let i = 0; i < 3; i++) {
+      const dot = this.add.rectangle((target.col + 0.5) * TILE + (i - 1) * 5, (target.row + 1) * TILE - 4, 3, 3, color).setDepth(11);
+      this.tweens.add({ targets: dot, x: dot.x + (i - 1) * 7, y: dot.y - 15, alpha: 0, duration: 300, onComplete: () => dot.destroy() });
     }
   }
 
-  // ── T4-3：E 键 —— 优先收获成熟作物，否则回落 trySleep ──
   private onInteract(): void {
     if (this.busy()) return;
-    const target = this.getTargetTileId();
+    const target = this.getActiveTarget();
     if (target) {
-      const session = getGameSession();
-      const snap = session.farming.serialize();
-      const tile = snap[target.tileId];
-      if (tile && tile.crop) {
-        const def = session.crops.getDefinition(tile.crop.cropId);
-        if (def && session.crops.stageOf(tile.crop, def) === "mature") {
-          const r = session.actions.harvest(target.tileId);
-          if (r.ok) {
-            this.player.playAction("harvest");
-            getFarmAudio().play("harvest");
-            this.toast("收获成功");
-            this.saveCurrent();
-            return;
-          }
-          this.toast(`收获失败：${r.reason}`);
-          getFarmAudio().play("error");
-          return;
-        }
+      const session = getGameSession(), tile = session.farming.serialize()[target.tileId];
+      if (tile?.crop && session.crops.isMature(tile.crop)) {
+        const result = session.performFarmAction({ kind: "harvest", tileId: target.tileId });
+        if (!result.ok) { this.farmFailure(result.reason); return; }
+        this.saveNotice.setText(""); this.player.faceToward((target.col + 0.5) * TILE, (target.row + 0.5) * TILE);
+        this.player.playAction("harvest"); getFarmAudio().play("harvest"); this.farmParticles(target, "harvest");
+        this.toast(`收获成功 · ${session.crops.getDefinition(tile.crop.cropId)!.name}`); return;
       }
     }
     if (this.merchant?.near(this.player.x, this.player.y)) { getFarmAudio().play("confirm"); this.dialogue.open("talk"); return; }
@@ -683,7 +661,7 @@ export class FarmScene extends Phaser.Scene {
       if (!def) continue;
 
       const stage = session.crops.stageOf(tile.crop, def);
-      const visual = getCropVisual(tile.crop.cropId, stage, this.hasVisualFrame);
+      const visual = getCropVisual(tile.crop.cropId, stage, this.hasVisualFrame, Boolean(def.repeatHarvest && tile.crop.harvestedCount > 0));
 
       const parts = tileId.split("_");
       const r = Number(parts[0]);
@@ -814,11 +792,8 @@ export class FarmScene extends Phaser.Scene {
     const d = session.time.date;
     const g = session.economy.goldValue;
     const weather = { sunny: "晴", cloudy: "阴", rain: "雨" }[session.weather.current().type];
-    this.hud.setText(`${SEASON_LABEL[d.season]} · ${d.day}日　${g} 金 · ${weather}`).setScale(1);
-    if (this.hud.width > 154) this.hud.setScale(154 / this.hud.width);
-    this.lifeHud.setText(`${session.life.clockText}　体力 ${session.life.energy}/100`);
-    this.energyBar.setDisplaySize(168 * session.life.energy / 100, 3)
-      .setFillStyle(session.life.energy < 20 ? 0xd9914f : 0x8da358);
+    this.hud.update({ area: "林缘农场", date: `${SEASON_LABEL[d.season]} ${d.day}日 · ${weather}`,
+      clock: session.life.clockText, energy: session.life.energy, gold: g });
   }
 
   private saveCurrent(): boolean {
@@ -846,17 +821,13 @@ export class FarmScene extends Phaser.Scene {
     if (Math.hypot(this.player.x - this.lastStepX, this.player.y - this.lastStepY) >= 8) {
       audio.play("step"); this.lastStepX = this.player.x; this.lastStepY = this.player.y;
     }
-    const quest = session.introQuest.state;
-    const crop = quest.cropId ? getCrop(quest.cropId) : undefined;
-    const count = crop ? Math.min(session.inventory.count(crop.id), 1) : 0;
-    this.merchant?.update(this.player.x, this.player.y, quest.status === "active" && count > 0 ? "ready" : quest.status);
-    const questKey = `${quest.status}:${quest.cropId}:${count}`;
+    const guide = getIntroObjective(session);
+    this.merchant?.update(this.player.x, this.player.y, guide.status);
+    const questKey = JSON.stringify(guide);
     if (questKey !== this.lastQuestKey) {
       this.lastQuestKey = questKey;
-      this.questHint.setText(quest.status === "completed" ? "✓ 首份收成已完成 · Q 手记"
-        : quest.status === "available" ? "初来林缘 · Q 手记\n找到田边的禾木，领取种子"
-        : `首份收成 · Q 手记\n${crop?.name ?? "收成"} ${count}/1 · 找禾木交付`);
-      if (!this.merchant && quest.status !== "completed") this.questHint.setText(this.questHint.text + "\nQ 打开禾木的便笺");
+      this.questHint.setText(`${guide.title} · Q 手记\n${guide.next}`);
+      if (!this.merchant && guide.status !== "completed") this.questHint.setText(this.questHint.text + "\nQ 打开禾木的便笺");
     }
     this.contextHint.setText(this.merchant?.near(this.player.x, this.player.y) ? "E 与禾木交谈 · 种子与首份收成"
       : this.nearHome() ? "E 进入农舍 · 屋内床边休息"
@@ -893,12 +864,17 @@ export class FarmScene extends Phaser.Scene {
 
   // ── P3：快捷栏图标脏检查（8 格 itemId 串变化时逐格 setTexture）──
   private syncTargetHighlight(): void {
-    const target = this.getTargetTileId();
+    const target = this.getActiveTarget();
     const active = !this.busy();
     if (target && active && TILLABLE.has(target.key)) {
+      const session = getGameSession();
+      const key = `${target.tileId}/${this.lastSnapshotKey}/${session.weather.current().type}`;
+      if (key !== this.lastPlotKey) { this.lastPlotKey = key; this.plotGuide = getPlotGuide(session, target.tileId); }
       // Keep the 2px stroke wholly inside its 32px cell, after Arcade has synced the final position.
-      this.tileHighlight.setPosition(target.col * TILE + 1, target.row * TILE + 1).setVisible(true);
-    } else this.tileHighlight.setVisible(false);
+      this.tileHighlight.setPosition(target.col * TILE + 1, target.row * TILE + 1)
+        .setStrokeStyle(2, this.plotGuide?.mature ? 0xf2cf6a : 0xdceca0, 0.95).setVisible(true);
+      this.plotInfo?.update(this.plotGuide ?? null);
+    } else { this.tileHighlight.setVisible(false); this.plotInfo?.update(null); this.lastPlotKey = ""; }
   }
 
   private refreshHotbarIfChanged(): void {
@@ -927,16 +903,20 @@ export class FarmScene extends Phaser.Scene {
     this.pond?.destroy();
     this.soilSurface?.destroy();
     this.atmosphere?.destroy();
+    this.hud?.destroy();
+    this.journal?.destroy(); this.plotInfo?.destroy();
     document.removeEventListener("visibilitychange", this.onVisibility);
     this.player?.destroy();
     const k = this.input.keyboard;
     if (k) {
-      for (const event of ["keydown-E", "keydown-T", "keydown-B", "keydown-I", "keydown-Q", "keydown-M", "keydown-K", "keydown-L"]) k.off(event);
+      for (const event of ["keydown-E", "keydown-T", "keydown-B", "keydown-I", "keydown-Q", "keydown-M", "keydown-K", "keydown-L", "keydown-F", "keydown-X", "keydown-SPACE"]) k.off(event);
+      k.off("keydown", this.onKeyboardTarget, this);
       for (const n of NUM_KEYS) {
         k.off(`keydown-${n}`);
       }
     }
     this.input.off("pointerdown", this.onPointerDown, this);
+    this.input.off("pointermove", this.onPointerMove, this);
 
     for (const img of this.cropSprites.values()) {
       img.destroy();

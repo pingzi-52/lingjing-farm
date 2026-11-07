@@ -1,0 +1,12 @@
+{
+  "frames": {
+    "main": {
+      "frame": { "x": 76, "y": 84, "w": 1384, "h": 870 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 1384, "h": 870 },
+      "sourceSize": { "w": 1384, "h": 870 }
+    }
+  },
+  "meta": { "image": "town-hall-v1.png", "size": { "w": 1536, "h": 1024 }, "scale": "1" }
+}

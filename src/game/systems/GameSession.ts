@@ -17,12 +17,29 @@ import { createFarmActions, type FarmActions } from "../../domain/services/FarmA
 import { CROPS } from "../../data/crops";
 import { ITEMS } from "../../data/items";
 import { SHOP_HOMU } from "../../data/shops";
+import { FARM01 } from "../../data/maps/farm01";
 import type { FarmTileState } from "../../domain/models/Crop";
 import type { WeatherProvider, WeatherState } from "../../domain/models/Weather";
+import { FurnitureService } from "../../domain/services/FurnitureService";
+import type { FurniturePosition } from "../../domain/models/Furniture";
+import { FURNITURE_DEFINITIONS } from "../../data/furniture";
 
 // ── T4 子阶段1 新增常量 ──────────────────────────
 export const INIT_GOLD = 500;
 export const INIT_TOOLS: readonly string[] = ["hoe", "watering_can"];
+
+export type FarmCommand =
+  | { kind: "till" | "water" | "harvest" | "reclaim"; tileId: string }
+  | { kind: "plant"; tileId: string; seedItemId: string };
+
+/** Match the canonical tile IDs and raw terrain accepted by V6 persistence. */
+function isPersistableFarmTile(tileId: string): boolean {
+  if (typeof tileId !== "string" || !/^(0|[1-9]\d*)_(0|[1-9]\d*)$/.test(tileId)) return false;
+  const [row, col] = tileId.split("_").map(Number);
+  if (!Number.isSafeInteger(row) || !Number.isSafeInteger(col)) return false;
+  const terrain = FARM01[row]?.[col];
+  return terrain !== undefined && [".", "S", "H"].includes(terrain);
+}
 
 /**
  * 跨场景共享的游戏状态（模块级单例）。
@@ -40,23 +57,32 @@ export interface GameSession {
   crops: CropService;
   inventory: InventoryService;
   chest: InventoryService;
+  furniture: FurnitureService;
   shop: ShopService;
   weather: WeatherProvider;
   actions: FarmActions;
 
   /** 睡觉：日期 +1 天 + 作物按天气推进，返回最新日期 */
   sleep(): DateInfo;
+  /** Sleep only takes effect if the complete next morning can be saved. */
+  sleepAndSave(): Result<DateInfo>;
   /** Advances display clock only. Scenes decide when to persist actual changes. */
   advanceTime(deltaMs: number): boolean;
 
   /** 持久化当前状态 */
   saveGame(): boolean;
 
+  /** Farm changes and their save succeed together; failure restores current services. */
+  performFarmAction(command: FarmCommand): Result;
+
   /** 当季购买和作物出售：业务失败或存储失败均保持金币/背包原状。 */
   buyItem(itemId: string, amount: number): Result;
   sellItem(itemId: string, amount: number): Result;
   moveInventorySlot(from: number, to: number): Result;
   transferChest(itemId: string, amount: number, direction: "deposit" | "withdraw"): Result;
+  buyFurniture(kind: string): Result;
+  placeFurniture(id: number, x: number, y: number, player?: FurniturePosition): Result;
+  storeFurniture(id: number): Result;
   acceptIntroQuest(): Result;
   completeIntroQuest(): Result;
   gatherNode(id: string): Result;
@@ -81,6 +107,7 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
   const farming = new FarmingService(tiles, crops);
   const inventory = new InventoryService(24);
   const chest = new InventoryService(24);
+  const furniture = new FurnitureService();
   const shop = new ShopService(SHOP_HOMU, ITEMS);
   const time = new TimeService();
   const life = new DailyLifeService();
@@ -106,6 +133,28 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
     for (const [id, tile] of Object.entries(farming.serialize())) {
       if (tile.tilled && !tile.watered) farming.water(id);
     }
+  };
+  const advanceDay = (): DateInfo => {
+    const departingWeather = weather.current();
+    const date = time.advanceDay();
+    farming.tickDay(date.day, departingWeather);
+    exploration.beginDay(date.day);
+    applyRain();
+    return date;
+  };
+  const persist = (daily = life.serialize()): boolean => save.save({
+    gold: economy.goldValue, day: time.date.day,
+    inventory: inventory.serialize(), chest: chest.serialize(),
+    farming: Object.values(farming.serialize()), daily,
+    introQuest: introQuest.serialize(), exploration: exploration.serialize(),
+    furniture: furniture.serialize(),
+  });
+  const furnitureTransaction = (operation: () => Result, persistState: () => boolean): Result => {
+    const before = furniture.serialize(), gold = economy.goldValue;
+    const result = operation();
+    if (result.ok && persistState()) return result;
+    furniture.restore(before); economy.setGold(gold);
+    return result.ok ? { ok: false, reason: "SAVE_FAILED" } : result;
   };
   const baseActions = createFarmActions({
     farming,
@@ -155,6 +204,7 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
     inventory,
     shop,
     chest,
+    furniture,
     weather,
     actions,
     advanceTime(deltaMs): boolean { return this.life.advance(deltaMs); },
@@ -162,25 +212,50 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
       // The save schema caps days at one million. Keep every service unchanged
       // at that boundary rather than partly advancing into an unsavable day.
       if (this.time.date.day >= 1_000_000) return this.time.date;
-      const departingWeather = this.weather.current();
-      const d = this.time.advanceDay();
-      this.farming.tickDay(this.time.date.day, departingWeather);
+      const d = advanceDay();
       this.life.resetMorning();
-      this.exploration.beginDay(d.day);
-      applyRain();
       return d;
     },
+    sleepAndSave(): Result<DateInfo> {
+      if (time.date.day >= 1_000_000) return { ok: false, reason: "DAY_LIMIT" };
+      const before = { day: time.date.day, farming: farming.serialize(), exploration: exploration.serialize() };
+      const date = advanceDay();
+      // Persist the prospective morning before resetting life, preserving both
+      // energy and the fractional clock tick when storage rejects the write.
+      if (persist({ minute: 360, energy: 100 })) {
+        life.resetMorning();
+        return { ok: true, value: date };
+      }
+      time.setDay(before.day);
+      farming.restore(before.farming);
+      exploration.restore(before.exploration);
+      return { ok: false, reason: "SAVE_FAILED" };
+    },
     saveGame(): boolean {
-      return this.save.save({
-        gold: this.economy.goldValue,
-        day: this.time.date.day,
-        inventory: this.inventory.serialize(),
-        chest: this.chest.serialize(),
-        farming: Object.values(this.farming.serialize()),
-        daily: this.life.serialize(),
-        introQuest: this.introQuest.serialize(),
-        exploration: this.exploration.serialize(),
-      });
+      return persist();
+    },
+    performFarmAction(command): Result {
+      if (!["till", "water", "plant", "harvest", "reclaim"].includes(command?.kind)) return { ok: false, reason: "INVALID_ACTION" };
+      if (!isPersistableFarmTile(command.tileId)) return { ok: false, reason: "INVALID_TILE" };
+      const before = { farming: this.farming.serialize(), inventory: this.inventory.serialize(), energy: this.life.energy };
+      let result: Result;
+      switch (command.kind) {
+        case "till": result = this.actions.till(command.tileId); break;
+        case "water": result = this.actions.water(command.tileId); break;
+        case "plant": result = this.actions.plant(command.tileId, command.seedItemId); break;
+        case "harvest": result = this.actions.harvest(command.tileId); break;
+        case "reclaim":
+          result = this.farming.reclaim(command.tileId);
+          if (result.ok && !this.life.spend(1)) result = { ok: false, reason: "TOO_TIRED" };
+          break;
+      }
+      if (result.ok && this.saveGame()) return result;
+      this.farming.restore(before.farming);
+      this.inventory.restore(before.inventory);
+      // Restoring the whole daily state would discard the fractional clock tick.
+      const difference = before.energy - this.life.energy;
+      if (difference >= 0) this.life.recover(difference); else this.life.spend(-difference);
+      return result.ok ? { ok: false, reason: "SAVE_FAILED" } : result;
     },
     loadGame(): boolean {
       const data: SaveData | null = this.save.load();
@@ -194,8 +269,25 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
       this.life.restore(data.daily);
       this.introQuest.restore(data.introQuest);
       this.exploration.restore(data.exploration, data.day);
+      this.furniture.restore(data.furniture);
       applyRain();
       return true;
+    },
+    buyFurniture(kind): Result {
+      const definition = FURNITURE_DEFINITIONS.find(item => item.kind === kind);
+      if (!definition) return { ok: false, reason: "UNKNOWN_FURNITURE" };
+      if (economy.goldValue < definition.price) return { ok: false, reason: "NOT_ENOUGH_GOLD" };
+      return furnitureTransaction(() => {
+        const acquired = furniture.acquire(kind);
+        if (acquired.ok) economy.spendGold(definition.price);
+        return acquired;
+      }, () => this.saveGame());
+    },
+    placeFurniture(id, x, y, player): Result {
+      return furnitureTransaction(() => furniture.place(id, x, y, player), () => this.saveGame());
+    },
+    storeFurniture(id): Result {
+      return furnitureTransaction(() => furniture.store(id), () => this.saveGame());
     },
     gatherNode(id): Result {
       const node = FORAGE_NODES.find(node => node.id === id);
@@ -363,6 +455,7 @@ function createSession(save: SaveManager = new SaveManager(new MemoryStorage()))
       this.farming.restore({});
       this.introQuest.newGame();
       this.exploration.newGame();
+      this.furniture.newGame();
       this.chest.restore({ capacity: 24, slots: new Array(24).fill(null) });
       this.inventory.restore({
         capacity: 24,

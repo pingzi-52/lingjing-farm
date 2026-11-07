@@ -1,0 +1,612 @@
+{
+  "date": "2026-10-21",
+  "origin": "http://localhost:5176",
+  "isolation": "Headless Chrome temporary contexts; no user profile. Production build. Scene/player fixtures are identified separately from keyboard walking.",
+  "walking": [
+    "farm west -> forest at (944,576)",
+    "forest camp reached with A, E opened Lan dialogue",
+    "forest east -> farm -> town west at (80,448)",
+    "town workshop door reached with real D/W"
+  ],
+  "resourceBefore": {
+    "x": 882.6666666666675,
+    "y": 525.3333333333339,
+    "hint": "E 采集野蘑菇 · 体力 -2",
+    "focus": true,
+    "nodes": 9
+  },
+  "resourceAfter": {
+    "hint": "已采集 · 睡一觉后明天再来",
+    "focus": false,
+    "resourceVisible": true,
+    "note": "Existing picked resource becomes faint; highlight disappears. Visible property alone is not the picked-state contract."
+  },
+  "v6AfterCollect": {
+    "version": 6,
+    "gold": 777,
+    "day": 6,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 2
+        },
+        {
+          "itemId": "branch",
+          "amount": 6
+        },
+        {
+          "itemId": "stone",
+          "amount": 4
+        },
+        {
+          "itemId": "wild_mushroom",
+          "amount": 4
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 45
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 6,
+      "picked": [
+        "wood_a",
+        "mushroom_c"
+      ],
+      "forestQuest": "active",
+      "carpenterQuest": "active",
+      "lanternBuilt": false
+    }
+  },
+  "visualFixtures": [
+    "day1 minute820 town workshop and hall at (288/736,308)",
+    "day6 minute820 rain forest camp and hall",
+    "day1 minute1200 night forest camp and hall"
+  ],
+  "cycles": [
+    {
+      "cycle": 1,
+      "key": "forest",
+      "display": 1931,
+      "staticBodies": 460,
+      "dynamicBodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2,
+      "decor": 20
+    },
+    {
+      "cycle": 1,
+      "key": "town",
+      "display": 1412,
+      "staticBodies": 246,
+      "dynamicBodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2,
+      "decor": 49
+    },
+    {
+      "cycle": 2,
+      "key": "forest",
+      "display": 1931,
+      "staticBodies": 460,
+      "dynamicBodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2,
+      "decor": 20
+    },
+    {
+      "cycle": 2,
+      "key": "town",
+      "display": 1412,
+      "staticBodies": 246,
+      "dynamicBodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2,
+      "decor": 49
+    },
+    {
+      "cycle": 3,
+      "key": "forest",
+      "display": 1931,
+      "staticBodies": 460,
+      "dynamicBodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2,
+      "decor": 20
+    },
+    {
+      "cycle": 3,
+      "key": "town",
+      "display": 1412,
+      "staticBodies": 246,
+      "dynamicBodies": 1,
+      "E": 1,
+      "L": 1,
+      "post": 2,
+      "decor": 49
+    }
+  ],
+  "mapText": "区域手记 · 委托\n关闭 ×\n\n林缘森林 ← 林缘农场 → 溪桥镇\n\n溪桥镇 · 方位图\n北 ↑\n木匠工坊\n林缘会馆\n◆\n阿榆\n□\n← 农场\n●\n你\n● 你\n◆ 居民\n□ 回农场\n\n上北 · 下南 · 左西 · 右东\n\n仅供查看 · 浅色为道路，深绿为障碍 · 回农场请沿路步行\n\n林缘农场\n种田、禾木杂货铺、农舍与储物箱\n林缘森林\n岚的采集委托 · 今日已采 1/9 处\n溪桥镇 · 你在这里\n阿榆的工坊 · 修缮委托与提灯配方\n首份收成 · 进行中\n\n青露萝卜 0/1\n\n回小屋休息，等待青露萝卜生长。\n\n雨天自动浇水 · 最接近收获的一株 2/4 生长日。\n林间的馈赠 · 可交付\n\n野蘑菇 3/3\n\n去林缘森林找岚交付材料。\n\n修缮的材料 · 可交付\n\n树枝 6/6 · 溪石 4/4\n\n去溪桥镇找阿榆交付材料。\n\nL / Esc 收起手记 · 居民身边 E 接取和交付 · K 制作",
+  "v6AfterCycles": {
+    "version": 6,
+    "gold": 777,
+    "day": 6,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 2
+        },
+        {
+          "itemId": "branch",
+          "amount": 6
+        },
+        {
+          "itemId": "stone",
+          "amount": 4
+        },
+        {
+          "itemId": "wild_mushroom",
+          "amount": 3
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 830,
+      "energy": 47
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 6,
+      "picked": [
+        "wood_a"
+      ],
+      "forestQuest": "active",
+      "carpenterQuest": "active",
+      "lanternBuilt": false
+    }
+  },
+  "v5Migrated": {
+    "version": 6,
+    "gold": 777,
+    "day": 6,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 2
+        },
+        {
+          "itemId": "branch",
+          "amount": 6
+        },
+        {
+          "itemId": "stone",
+          "amount": 4
+        },
+        {
+          "itemId": "wild_mushroom",
+          "amount": 3
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 47
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 6,
+      "picked": [],
+      "forestQuest": "available",
+      "carpenterQuest": "available",
+      "lanternBuilt": false
+    }
+  },
+  "fallbacks": [
+    {
+      "mode": "workshop-only",
+      "buildings": [
+        {
+          "texture": "farmhouse-main",
+          "frame": "trimmed",
+          "width": 192.00000000000003
+        },
+        {
+          "texture": "town-hall-v1",
+          "frame": "main",
+          "width": 191.99999999999997
+        }
+      ],
+      "staticBodies": 246,
+      "errors": []
+    },
+    {
+      "mode": "both",
+      "buildings": [
+        {
+          "texture": "farmhouse-main",
+          "frame": "trimmed",
+          "width": 192.00000000000003
+        },
+        {
+          "texture": "farmhouse-main",
+          "frame": "trimmed",
+          "width": 192.00000000000003
+        }
+      ],
+      "staticBodies": 246,
+      "errors": []
+    }
+  ],
+  "unexpectedPageErrors": [],
+  "testResult": {
+    "files": 45,
+    "tests": 774,
+    "buildModules": 79,
+    "diffCheck": "passed"
+  },
+  "review": "Independent read-only reviewer found no actionable defects; focused 36 tests passed.",
+  "labels": "Names shifted beside entrance after inspecting real doorway screenshot.",
+  "baseline": "755 tests before this round; historical screenshots resident-ready-forest.png and walking-town.png are references, not same-session before/after.",
+  "v6UnchangedAfterCycles": true,
+  "v5Preserved": true,
+  "mapPause": {
+    "seconds": 7.2,
+    "before": {
+      "hud": "林缘森林　春 6日 · 雨　13:40　体力 47　777 金",
+      "x": 461,
+      "y": 576
+    },
+    "after": {
+      "hud": "林缘森林　春 6日 · 雨　13:40　体力 47　777 金",
+      "x": 461,
+      "y": 576
+    },
+    "equal": true
+  },
+  "decorDestroyed": true,
+  "refreshedV6": {
+    "version": 6,
+    "gold": 777,
+    "day": 6,
+    "inventory": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "hoe",
+          "amount": 1
+        },
+        {
+          "itemId": "watering_can",
+          "amount": 1
+        },
+        {
+          "itemId": "dew_radish_seed",
+          "amount": 2
+        },
+        {
+          "itemId": "branch",
+          "amount": 6
+        },
+        {
+          "itemId": "stone",
+          "amount": 4
+        },
+        {
+          "itemId": "wild_mushroom",
+          "amount": 3
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "chest": {
+      "capacity": 24,
+      "slots": [
+        {
+          "itemId": "dew_radish",
+          "amount": 1
+        },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "farming": [
+      {
+        "id": "8_12",
+        "tilled": true,
+        "watered": true,
+        "crop": {
+          "cropId": "dew_radish",
+          "growthDay": 2,
+          "harvestedCount": 0
+        }
+      }
+    ],
+    "daily": {
+      "minute": 820,
+      "energy": 47
+    },
+    "introQuest": {
+      "status": "active",
+      "cropId": "dew_radish"
+    },
+    "exploration": {
+      "forageDay": 6,
+      "picked": [
+        "wood_a"
+      ],
+      "forestQuest": "active",
+      "carpenterQuest": "active",
+      "lanternBuilt": false
+    }
+  }
+}

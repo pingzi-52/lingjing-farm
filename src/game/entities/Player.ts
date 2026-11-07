@@ -106,6 +106,11 @@ export class Player {
   /** Action feedback changes only the display companion, never gameplay or its body. */
   playAction(action: FarmerAction): void { this.visual.playAction(action); }
 
+  faceToward(x: number, y: number): void {
+    this.facingDir = pickFacing(x - this.x, y - this.y, this.facingDir);
+    this.visual.update(this.facingDir, false, 0);
+  }
+
   destroy(): void {
     this.scene.events.off(Phaser.Scenes.Events.POST_UPDATE, this.syncVisual, this);
     this.visual.destroy();

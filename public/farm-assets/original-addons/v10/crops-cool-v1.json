@@ -1,0 +1,412 @@
+{
+  "frames": {
+    "amber_pumpkin_seed": {
+      "frame": {
+        "x": 92,
+        "y": 199,
+        "w": 58,
+        "h": 50
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 131,
+        "y": 268,
+        "w": 58,
+        "h": 50
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "leaf_cabbage_seed": {
+      "frame": {
+        "x": 93,
+        "y": 435,
+        "w": 53,
+        "h": 53
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 133,
+        "y": 265,
+        "w": 53,
+        "h": 53
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "moon_grape_seed": {
+      "frame": {
+        "x": 94,
+        "y": 708,
+        "w": 53,
+        "h": 46
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 133,
+        "y": 272,
+        "w": 53,
+        "h": 46
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "snow_flower_seed": {
+      "frame": {
+        "x": 91,
+        "y": 980,
+        "w": 55,
+        "h": 57
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 132,
+        "y": 261,
+        "w": 55,
+        "h": 57
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "ice_grass_seed": {
+      "frame": {
+        "x": 95,
+        "y": 1277,
+        "w": 53,
+        "h": 48
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 133,
+        "y": 270,
+        "w": 53,
+        "h": 48
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "amber_pumpkin_sprout": {
+      "frame": {
+        "x": 293,
+        "y": 154,
+        "w": 125,
+        "h": 103
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 97,
+        "y": 215,
+        "w": 125,
+        "h": 103
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "leaf_cabbage_sprout": {
+      "frame": {
+        "x": 284,
+        "y": 399,
+        "w": 148,
+        "h": 105
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 86,
+        "y": 213,
+        "w": 148,
+        "h": 105
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "moon_grape_sprout": {
+      "frame": {
+        "x": 277,
+        "y": 650,
+        "w": 148,
+        "h": 119
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 86,
+        "y": 199,
+        "w": 148,
+        "h": 119
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "snow_flower_sprout": {
+      "frame": {
+        "x": 285,
+        "y": 947,
+        "w": 149,
+        "h": 109
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 85,
+        "y": 209,
+        "w": 149,
+        "h": 109
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "ice_grass_sprout": {
+      "frame": {
+        "x": 289,
+        "y": 1222,
+        "w": 157,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 81,
+        "y": 206,
+        "w": 157,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "amber_pumpkin_young": {
+      "frame": {
+        "x": 501,
+        "y": 67,
+        "w": 256,
+        "h": 195
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 32,
+        "y": 123,
+        "w": 256,
+        "h": 195
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "leaf_cabbage_young": {
+      "frame": {
+        "x": 514,
+        "y": 334,
+        "w": 240,
+        "h": 187
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 131,
+        "w": 240,
+        "h": 187
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "moon_grape_young": {
+      "frame": {
+        "x": 505,
+        "y": 576,
+        "w": 251,
+        "h": 215
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 34,
+        "y": 103,
+        "w": 251,
+        "h": 215
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "snow_flower_young": {
+      "frame": {
+        "x": 509,
+        "y": 832,
+        "w": 234,
+        "h": 235
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 43,
+        "y": 83,
+        "w": 234,
+        "h": 235
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "ice_grass_young": {
+      "frame": {
+        "x": 514,
+        "y": 1156,
+        "w": 226,
+        "h": 191
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 47,
+        "y": 127,
+        "w": 226,
+        "h": 191
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "amber_pumpkin_mature": {
+      "frame": {
+        "x": 798,
+        "y": 20,
+        "w": 311,
+        "h": 254
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 4,
+        "y": 64,
+        "w": 311,
+        "h": 254
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "leaf_cabbage_mature": {
+      "frame": {
+        "x": 805,
+        "y": 298,
+        "w": 302,
+        "h": 232
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 9,
+        "y": 86,
+        "w": 302,
+        "h": 232
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "moon_grape_mature": {
+      "frame": {
+        "x": 794,
+        "y": 548,
+        "w": 310,
+        "h": 245
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 5,
+        "y": 73,
+        "w": 310,
+        "h": 245
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "snow_flower_mature": {
+      "frame": {
+        "x": 800,
+        "y": 803,
+        "w": 306,
+        "h": 278
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 40,
+        "w": 306,
+        "h": 278
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    },
+    "ice_grass_mature": {
+      "frame": {
+        "x": 796,
+        "y": 1101,
+        "w": 307,
+        "h": 260
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 6,
+        "y": 58,
+        "w": 307,
+        "h": 260
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 320
+      }
+    }
+  },
+  "meta": {
+    "image": "crops-cool-v1.png",
+    "size": {
+      "w": 1122,
+      "h": 1402
+    },
+    "note": "Unchanged original PNG; alpha components measured, normalized 320-square display canvas with feet at318."
+  }
+}

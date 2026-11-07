@@ -12,6 +12,13 @@ import { CraftingMenu } from "../../ui/CraftingMenu";
 import { TravelMenu } from "../../ui/TravelMenu";
 import { openAreaExits, arrivalFrom, type AreaId } from "../../data/maps/areaConnections";
 import { AreaPassage } from "../systems/areaPassage";
+import { buildAreaMap } from "../systems/areaMap";
+import { getExplorationObjective, type ObjectiveStatus } from "../systems/objectiveGuide";
+import { ExplorationDecor } from "../systems/explorationDecor";
+import { getRoadVisual, groundFrames } from "../systems/groundVisual";
+import { SceneHud } from "../systems/sceneHud";
+import { FurnitureShopMenu } from "../../ui/FurnitureShopMenu";
+import { HomeDecor } from "../systems/HomeDecor";
 
 const TILE = 32;
 const SEASONS = { spring: "春", summer: "夏", autumn: "秋", winter: "冬" };
@@ -30,17 +37,20 @@ class ExplorationScene extends Phaser.Scene {
   public nodeDisplays = new Map<string, Phaser.GameObjects.Image>();
   public worldMap!: ExplorationMap;
   private environment!: FarmEnvironment;
+  private decor?: ExplorationDecor;
   private atmosphere!: FarmAtmosphere;
   private menu!: FarmMenu;
   private dialogue!: ResidentDialogue;
+  private furnitureShop!: FurnitureShopMenu;
   private crafting!: CraftingMenu;
   private travelMenu!: TravelMenu;
   private passage?: AreaPassage;
   private fromArea?: AreaId;
   private audioSettings!: AudioSettingsMenu;
-  private hud!: Phaser.GameObjects.Text;
-  private materials!: Phaser.GameObjects.Text;
+  private hud!: SceneHud;
   private contextHint!: Phaser.GameObjects.Text;
+  private residentCue!: Phaser.GameObjects.Text;
+  private lastResidentStatus?: ObjectiveStatus;
   private status!: Phaser.GameObjects.Text;
   private statusTimer?: Phaser.Time.TimerEvent;
   private lastState = "";
@@ -59,6 +69,8 @@ class ExplorationScene extends Phaser.Scene {
 
   preload(): void {
     FarmEnvironment.preload(this);
+    ExplorationDecor.preload(this, this.kind);
+    if (this.kind === "town") HomeDecor.preload(this);
     const base = `${import.meta.env.BASE_URL}farm-assets/original-addons/`;
     if (!this.textures.exists("farm-home-path")) this.load.atlas("farm-home-path", `${base}v1/dirt-road-v1.png`, `${base}v1/dirt-road-v1.json`);
     if (!this.textures.exists("farmhouse-main")) this.load.image("farmhouse-main", `${base}v2/farmhouse-v1.png`);
@@ -66,7 +78,7 @@ class ExplorationScene extends Phaser.Scene {
 
   create(): void {
     this.worldMap = openAreaExits(this.kind === "forest" ? createForestMap() : createTownMap(), this.kind);
-    this.nodeDisplays = new Map(); this.lastState = ""; this.clockPaused = true;
+    this.nodeDisplays = new Map(); this.lastState = ""; this.clockPaused = true; this.lastResidentStatus = undefined;
     this.leaving = false; this.saveFailed = false;
     this.physics.world.resume(); this.physics.world.setBounds(0, 0, this.worldMap.width * TILE, this.worldMap.height * TILE);
     this.input.enabled = true; this.input.keyboard!.enabled = true; this.input.keyboard!.resetKeys();
@@ -80,7 +92,7 @@ class ExplorationScene extends Phaser.Scene {
         body.setDisplaySize(TILE, TILE).setVisible(false).refreshBody();
       }
     }
-    this.renderPaths(); this.renderDecor();
+    this.renderPaths(); this.decor = new ExplorationDecor(this, this.worldMap);
     this.environment.applySeason(getGameSession().time.date.season);
     const start = this.worldMap.start;
     this.player = new Player(this, (start.col + 0.5) * TILE, (start.row + 0.5) * TILE);
@@ -97,20 +109,17 @@ class ExplorationScene extends Phaser.Scene {
     camera.setBackgroundColor("#454d28");
     this.menu = new FarmMenu(this, () => {});
     this.crafting = new CraftingMenu(this);
-    this.dialogue = new ResidentDialogue(this, this.kind === "forest" ? "forest" : "carpenter", () => this.crafting.open());
-    this.travelMenu = new TravelMenu(this);
+    this.furnitureShop = new FurnitureShopMenu(this);
+    this.dialogue = new ResidentDialogue(this, this.kind === "forest" ? "forest" : "carpenter", () => this.crafting.open(), () => this.furnitureShop.open());
+    this.travelMenu = new TravelMenu(this, () => buildAreaMap(this.worldMap, this.player, getGameSession().exploration.state.picked));
     this.audioSettings = new AudioSettingsMenu(this);
     this.atmosphere = new FarmAtmosphere(this);
-    this.add.rectangle(256, 29, 496, 44, 0x493824, 0.95).setStrokeStyle(1, 0xaf8c55).setScrollFactor(0).setDepth(98);
-    this.hud = this.add.text(256, 13, "", TEXT).setOrigin(0.5, 0).setScrollFactor(0).setDepth(99);
-    this.materials = this.add.text(256, 32, "", { ...TEXT, color: "#d8c592" }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(99);
+    this.hud = new SceneHud(this);
     this.status = this.add.text(256, 66, "", { ...TEXT, backgroundColor: "#392b20dd" }).setOrigin(0.5).setWordWrapWidth(464).setAlign("center").setScrollFactor(0).setDepth(101);
     this.contextHint = this.add.text(256, 326, "", { ...TEXT, backgroundColor: "#34331bdc" }).setOrigin(0.5).setScrollFactor(0).setDepth(100);
     const controls = this.add.text(256, 366, "WASD 移动 · E 交互 · L 区域手记 · K 制作 · I 背包 · M 声音", TEXT)
       .setOrigin(0.5).setScrollFactor(0).setDepth(100);
     controls.setScale(Math.min(1, 492 / controls.width));
-    this.add.text((start.col + 0.5) * TILE, (start.row + 1.8) * TILE, `${this.kind === "forest" ? "东侧小路" : "西侧乡道"}通往农场`, { ...TEXT, fontSize: "10px", backgroundColor: "#393421bb" })
-      .setOrigin(0.5).setDepth(3);
     const keyboard = this.input.keyboard!;
     keyboard.on("keydown-E", this.interact, this);
     keyboard.on("keydown-L", this.openTravel, this);
@@ -129,38 +138,12 @@ class ExplorationScene extends Phaser.Scene {
 
   private renderPaths(): void {
     const paths = new Set(this.worldMap.paths.map(p => `${p.row}_${p.col}`));
-    if (!this.textures.exists("farm-home-path")) return;
     for (const p of this.worldMap.paths) {
       const n = paths.has(`${p.row - 1}_${p.col}`), s = paths.has(`${p.row + 1}_${p.col}`);
       const w = paths.has(`${p.row}_${p.col - 1}`), e = paths.has(`${p.row}_${p.col + 1}`);
       const frame = !n ? (!w ? "nw" : !e ? "ne" : "n") : !s ? (!w ? "sw" : !e ? "se" : "s") : !w ? "w" : !e ? "e" : "center";
-      this.add.image(p.col * TILE, p.row * TILE, "farm-home-path", frame).setOrigin(0).setDisplaySize(TILE, TILE).setDepth(1);
-    }
-  }
-
-  private renderDecor(): void {
-    const occupied = new Set([...this.worldMap.paths, this.worldMap.start, this.worldMap.resident, ...this.worldMap.nodes, ...this.worldMap.props].map(p => `${p.row}_${p.col}`));
-    if (this.textures.exists("TX Plant")) for (let r = 2; r < 22; r++) for (let c = 2; c < 30; c++) {
-      if (this.worldMap.tiles[r][c].solid || occupied.has(`${r}_${c}`) || (r * 3 + c * 7) % 3 !== 0) continue;
-      const frame = (r + c) % 4 ? "TX Plant - Grass 07" : "TX Plant - Flower 01";
-      this.add.image(c * TILE + 12, r * TILE + 22, "TX Plant", frame).setOrigin(0.5, 1).setDepth(2);
-      this.add.image(c * TILE + 24, r * TILE + 29, "TX Plant", "TX Plant - Grass 10").setOrigin(0.5, 1).setDepth(2);
-    }
-    for (const prop of this.worldMap.props) {
-      if (!this.textures.exists("TX Props") || !this.textures.get("TX Props").has(prop.frame)) continue;
-      const image = this.add.image((prop.col + 0.5) * TILE, (prop.row + 1) * TILE, "TX Props", prop.frame).setOrigin(0.5, 1);
-      image.setScale(Math.min(1, 42 / image.frame.realHeight, 46 / image.frame.realWidth));
-      image.setDepth(FarmEnvironment.objectDepth(image.y));
-    }
-    for (const b of this.worldMap.buildings) {
-      if (this.textures.exists("farmhouse-main")) {
-        const texture = this.textures.get("farmhouse-main");
-        if (!texture.has("trimmed")) texture.add("trimmed", 0, 44, 164, 1117, 1033);
-        const image = this.add.image((b.col + b.width / 2) * TILE, (b.row + b.height) * TILE, "farmhouse-main", "trimmed").setOrigin(0.5, 1);
-        image.setScale(b.width * TILE / image.frame.realWidth).setDepth(FarmEnvironment.objectDepth(image.y));
-        if (b.label === "林缘会馆") image.setTint(0xc7c7a9);
-      }
-      this.add.text((b.col + b.width / 2) * TILE, (b.row + b.height) * TILE + 13, b.label, { ...TEXT, backgroundColor: "#493a25dd" }).setOrigin(0.5).setDepth(12);
+      const art = getRoadVisual(frame, groundFrames(this));
+      if (art) this.add.image(p.col * TILE, p.row * TILE, art.texture, art.frame).setOrigin(0).setDisplaySize(TILE, TILE).setDepth(1);
     }
   }
 
@@ -179,6 +162,8 @@ class ExplorationScene extends Phaser.Scene {
     image.setScale(44 / image.frame.realHeight).setDepth(FarmEnvironment.objectDepth(y + 16));
     this.add.text(x, image.y - image.displayHeight - 5, this.kind === "forest" ? "岚 · 林缘向导" : "阿榆 · 木匠", { ...TEXT, fontSize: "10px", backgroundColor: "#342c1fcc" })
       .setOrigin(0.5, 1).setDepth(12);
+    this.residentCue = this.add.text(x, image.y - image.displayHeight - 20, "", { ...TEXT, fontSize: "10px", backgroundColor: "#342c1fcc" })
+      .setOrigin(0.5, 1).setDepth(12);
   }
 
   private createNodes(): void {
@@ -191,7 +176,7 @@ class ExplorationScene extends Phaser.Scene {
     }
   }
 
-  private busy(): boolean { return this.leaving || this.menu.isOpen || this.dialogue.isOpen || this.crafting.isOpen || this.travelMenu.isOpen || this.audioSettings.isOpen; }
+  private busy(): boolean { return this.leaving || this.menu.isOpen || this.dialogue.isOpen || this.crafting.isOpen || this.travelMenu.isOpen || this.audioSettings.isOpen || this.furnitureShop.isOpen; }
   private openTravel(): void { if (!this.busy()) this.travelMenu.open(); }
   private openCrafting(): void { if (!this.busy()) this.crafting.open(); }
   private openAudio(): void { if (!this.busy()) this.audioSettings.open(); }
@@ -225,9 +210,9 @@ class ExplorationScene extends Phaser.Scene {
   private refreshState(): void {
     const session = getGameSession(), state = session.exploration.state, date = session.time.date;
     const name = this.kind === "forest" ? "林缘森林" : "溪桥镇";
-    this.hud.setText(`${name}　${SEASONS[date.season]} ${date.day}日 · ${WEATHER[session.weather.current().type]}　${session.life.clockText}　体力 ${session.life.energy}　${session.economy.goldValue} 金`);
-    this.hud.setScale(Math.min(1, 480 / this.hud.width));
-    this.materials.setText(`枯枝 ${session.inventory.count("branch")}　石块 ${session.inventory.count("stone")}　野蘑菇 ${session.inventory.count("wild_mushroom")}　蘑菇餐 ${session.inventory.count("mushroom_meal")}`);
+    this.hud.update({ area: name, date: `${SEASONS[date.season]} ${date.day}日 · ${WEATHER[session.weather.current().type]}`,
+      clock: session.life.clockText, energy: session.life.energy, gold: session.economy.goldValue });
+    this.hud.setDetail(`枯枝 ${session.inventory.count("branch")}　石块 ${session.inventory.count("stone")}　野蘑菇 ${session.inventory.count("wild_mushroom")}　蘑菇餐 ${session.inventory.count("mushroom_meal")}`);
     for (const [id, image] of this.nodeDisplays) image.setAlpha(state.picked.includes(id) ? 0.3 : 1);
     this.lastState = JSON.stringify([date, session.life.serialize(), session.economy.goldValue, session.inventory.serialize(), state]);
   }
@@ -254,7 +239,15 @@ class ExplorationScene extends Phaser.Scene {
     const key = JSON.stringify([session.time.date, session.life.serialize(), session.economy.goldValue, session.inventory.serialize(), session.exploration.state]);
     if (key !== this.lastState) this.refreshState();
     const node = this.nearestNode();
-    this.contextHint.setText(this.nearResident() ? "E 对话 / 委托" : node ? session.exploration.state.picked.includes(node.id) ? "已采集 · 睡一觉后明天再来" : `E 采集${NODE_NAMES[node.itemId]} · 体力 -2`
+    const guide = getExplorationObjective(session, this.kind === "forest" ? "forest" : "carpenter");
+    this.decor?.focusResource(node && !session.exploration.state.picked.includes(node.id) ? node : undefined);
+    if (guide.status !== this.lastResidentStatus) {
+      this.lastResidentStatus = guide.status;
+      this.residentCue.setText({ available: "! 待接委托", active: "· 材料收集中", ready: "! 材料已齐 · 可交付", completed: "✓ 委托已完成" }[guide.status]);
+      this.residentCue.setColor(guide.status === "ready" ? "#fff19b" : "#ddcba6");
+    }
+    const residentHint = { available: "E 接取委托", active: "E 查看委托与材料", ready: "E 交付材料 · 领取报酬", completed: "E 与居民交谈" }[guide.status];
+    this.contextHint.setText(this.nearResident() ? residentHint : node ? session.exploration.state.picked.includes(node.id) ? "已采集 · 睡一觉后明天再来" : `E 采集${NODE_NAMES[node.itemId]} · 体力 -2`
       : this.passage?.hint() ?? (session.life.isLate ? `夜深了 · 沿${this.kind === "forest" ? "东" : "西"}侧小路回农场`
         : this.kind === "forest" ? "沿林间小路探索 · E 采集 · 东路回农场" : "找阿榆了解制作 · K 制作 · 西路回农场"));
     this.passage?.update();
@@ -269,8 +262,11 @@ class ExplorationScene extends Phaser.Scene {
     document.removeEventListener("visibilitychange", this.onVisibility);
     this.statusTimer?.destroy(); this.statusTimer = undefined;
     this.menu?.destroy(); this.dialogue?.destroy(); this.crafting?.destroy(); this.travelMenu?.destroy(); this.audioSettings?.destroy();
+    this.furnitureShop?.destroy();
     this.atmosphere?.destroy(); getFarmAudio().setPaused(true);
     this.passage?.destroy(); this.passage = undefined;
+    this.decor?.destroy(); this.decor = undefined;
+    this.hud?.destroy();
     this.player?.destroy(); this.resident?.destroy(); this.nodeDisplays.clear();
   }
 }

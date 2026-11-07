@@ -35,6 +35,11 @@ export class CropService {
     return def.growDays;
   }
 
+  /** 当前首茬或再生周期所需的有效成长日，供只读进度展示复用。 */
+  growthDaysFor(crop: CropState, def?: CropDefinition): number {
+    return this.thresholdOf(crop, this.resolveDef(crop, def));
+  }
+
   /**
    * 由 growthDay + 成熟阈值推导当前阶段（V1.2 四段映射，n = 当前周期阈值）：
    *   growthDay < 1        → seed

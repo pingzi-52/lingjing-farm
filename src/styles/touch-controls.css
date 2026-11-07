@@ -1,0 +1,23 @@
+body { box-sizing: border-box; min-height: 100dvh; padding: 8px; }
+#game-app { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 100%; }
+#game-shell { position: relative; flex-shrink: 0; }
+#game-root { width: 512px; height: 384px; transform-origin: top left; }
+.device-note { max-width: 520px; margin: 0; color: #bbc6ac; font: 11px/1.6 "Microsoft YaHei", sans-serif; text-align: center; }
+#touch-controls { width: min(700px, calc(100vw - 20px)); display: flex; gap: 12px; align-items: center; user-select: none; }
+#touch-controls[hidden] { display: none; }
+#touch-controls button { min-height: 42px; border: 1px solid #84956c; border-radius: 7px; color: #f3e7c9; background: #34452c; font: 12px "Microsoft YaHei", sans-serif; touch-action: none; }
+#touch-controls button:active { background: #607343; }
+#touch-controls button:disabled { opacity: .4; }
+.touch-dpad { display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(2, 44px); gap: 3px; flex-shrink: 0; }
+.touch-dpad [data-key="ArrowUp"] { grid-column: 2; }
+.touch-dpad [data-key="ArrowLeft"] { grid-column: 1; grid-row: 2; }
+.touch-dpad [data-key="ArrowDown"] { grid-column: 2; grid-row: 2; }
+.touch-dpad [data-key="ArrowRight"] { grid-column: 3; grid-row: 2; }
+.touch-actions { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+@media (max-height: 500px) and (min-width: 600px) {
+  #game-app { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px; }
+  #touch-controls { width: 240px; flex-wrap: wrap; justify-content: center; }
+  .touch-actions { flex-basis: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #touch-controls button { min-height: 32px; font-size: 10px; }
+  .device-note { flex-basis: 100%; }
+}

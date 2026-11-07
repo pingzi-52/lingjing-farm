@@ -1,0 +1,273 @@
+{
+  "date": "2026-10-23",
+  "origin": "http://127.0.0.1:5177",
+  "isolation": "Temporary Chrome contexts; entry intercepted only to expose game for fixture positioning and inspection. Title entered normally with Enter; scene-local transitions stop previous scene. Actual WASD, E, T and chest buttons tested. Synthetic V6 state and a V1 legacy fixture. No personal profile.",
+  "renderedEvidence": {
+    "active": [
+      "home"
+    ],
+    "bodies": 8,
+    "colliders": 8,
+    "children": 47,
+    "furniture": [
+      {
+        "name": "home-furniture:rug",
+        "width": 112,
+        "height": 71.0913140311804,
+        "scaleX": 0.24944320712694878,
+        "scaleY": 0.24944320712694878,
+        "depth": 1
+      },
+      {
+        "name": "home-furniture:wall-shelf",
+        "width": 36,
+        "height": 22.308196721311475,
+        "scaleX": 0.1180327868852459,
+        "scaleY": 0.1180327868852459,
+        "depth": 1
+      },
+      {
+        "name": "home-furniture:sideboard",
+        "width": 50,
+        "height": 50.796178343949045,
+        "scaleX": 0.1592356687898089,
+        "scaleY": 0.1592356687898089,
+        "depth": 10.0168
+      },
+      {
+        "name": "home-furniture:bookcase",
+        "width": 36,
+        "height": 55.971731448763244,
+        "scaleX": 0.127208480565371,
+        "scaleY": 0.127208480565371,
+        "depth": 10.0169
+      },
+      {
+        "name": "home-furniture:lamp",
+        "width": 22,
+        "height": 51.806451612903224,
+        "scaleX": 0.14193548387096774,
+        "scaleY": 0.14193548387096774,
+        "depth": 10.0248
+      },
+      {
+        "name": "home-furniture:table",
+        "width": 68,
+        "height": 44.15584415584416,
+        "scaleX": 0.17662337662337663,
+        "scaleY": 0.17662337662337663,
+        "depth": 10.025
+      },
+      {
+        "name": "home-furniture:chair",
+        "width": 23,
+        "height": 42.375757575757575,
+        "scaleX": 0.1393939393939394,
+        "scaleY": 0.1393939393939394,
+        "depth": 10.0282
+      },
+      {
+        "name": "home-furniture:plant",
+        "width": 32,
+        "height": 33.56351791530945,
+        "scaleX": 0.10423452768729642,
+        "scaleY": 0.10423452768729642,
+        "depth": 10.0305
+      }
+    ],
+    "footprints": [
+      {
+        "name": "home-footprint:bookcase",
+        "x": 104,
+        "y": 154,
+        "w": 36,
+        "h": 15
+      },
+      {
+        "name": "home-footprint:sideboard",
+        "x": 258,
+        "y": 150,
+        "w": 48,
+        "h": 18
+      },
+      {
+        "name": "home-footprint:table",
+        "x": 133,
+        "y": 222,
+        "w": 68,
+        "h": 28
+      },
+      {
+        "name": "home-footprint:chair",
+        "x": 157,
+        "y": 268,
+        "w": 22,
+        "h": 14
+      },
+      {
+        "name": "home-footprint:lamp",
+        "x": 389,
+        "y": 238,
+        "w": 12,
+        "h": 10
+      },
+      {
+        "name": "home-footprint:plant",
+        "x": 365,
+        "y": 294,
+        "w": 22,
+        "h": 11
+      }
+    ]
+  },
+  "tableCollision": {
+    "x": 217,
+    "y": 236,
+    "day": 1,
+    "energy": 75,
+    "status": "林缘小屋 · 在床边按 E 休息"
+  },
+  "chairCollision": {
+    "x": 195,
+    "y": 274,
+    "day": 1,
+    "energy": 75,
+    "status": "林缘小屋 · 在床边按 E 休息"
+  },
+  "rugWalk": {
+    "x": 256,
+    "y": 221.33333333333331,
+    "day": 1,
+    "energy": 75,
+    "status": "林缘小屋 · 在床边按 E 休息"
+  },
+  "deposit": {
+    "bag": 4,
+    "chest": 1
+  },
+  "withdrawal": {
+    "bag": 5,
+    "chest": 0,
+    "branches": 4
+  },
+  "sleepEvidence": {
+    "day": 2,
+    "daily": {
+      "minute": 360,
+      "energy": 100
+    },
+    "crop": {
+      "id": "8_12",
+      "tilled": true,
+      "watered": false,
+      "crop": {
+        "cropId": "dew_radish",
+        "growthDay": 2,
+        "harvestedCount": 0
+      }
+    },
+    "status": "休息好了 · 春 2日 · 已保存",
+    "savedDay": 2
+  },
+  "doorReturn": {
+    "x": 256,
+    "y": 304,
+    "day": 2,
+    "energy": 100,
+    "status": "林缘小屋 · 在床边按 E 休息"
+  },
+  "cycles": [
+    {
+      "bodies": 8,
+      "dynamic": 1,
+      "colliders": 8,
+      "children": 47,
+      "eListeners": 1,
+      "postListeners": 2,
+      "menus": 0,
+      "oldObjects": 0,
+      "oldColliders": 0,
+      "atlasRetained": true
+    },
+    {
+      "bodies": 8,
+      "dynamic": 1,
+      "colliders": 8,
+      "children": 47,
+      "eListeners": 1,
+      "postListeners": 2,
+      "menus": 0,
+      "oldObjects": 0,
+      "oldColliders": 0,
+      "atlasRetained": true
+    },
+    {
+      "bodies": 8,
+      "dynamic": 1,
+      "colliders": 8,
+      "children": 47,
+      "eListeners": 1,
+      "postListeners": 2,
+      "menus": 0,
+      "oldObjects": 0,
+      "oldColliders": 0,
+      "atlasRetained": true
+    }
+  ],
+  "reloadEvidence": {
+    "day": 2,
+    "crop": {
+      "id": "8_12",
+      "tilled": true,
+      "watered": false,
+      "crop": {
+        "cropId": "dew_radish",
+        "growthDay": 2,
+        "harvestedCount": 0
+      }
+    },
+    "seeds": 5,
+    "branches": 4
+  },
+  "nightEvidence": {
+    "minute": 1260,
+    "weather": {
+      "type": "rain",
+      "autoWater": true
+    },
+    "glow": true
+  },
+  "behindDepth": {
+    "player": 10.0218,
+    "table": 10.025
+  },
+  "frontDepth": {
+    "player": 10.0282,
+    "table": 10.025
+  },
+  "singleMissing": {
+    "furnishings": 7,
+    "bodies": 7,
+    "chairBlocker": false
+  },
+  "missingAll": {
+    "furnishings": 0,
+    "bodies": 2,
+    "colliders": 2,
+    "atlas": false,
+    "day": 14,
+    "gold": 777
+  },
+  "legacySleep": {
+    "day": 15,
+    "gold": 777,
+    "version": 6,
+    "status": "休息好了 · 夏 15日 · 已保存"
+  },
+  "missingAllChest": {
+    "hoe": 1,
+    "chestHoe": 0
+  },
+  "errors": [],
+  "missingErrors": []
+}

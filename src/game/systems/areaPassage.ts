@@ -1,8 +1,9 @@
 import Phaser from "phaser";
 import type { ParsedMap } from "../../data/maps/farm01.types";
-import { areaExits, arrivalFrom, exitAt, type AreaId, type AreaExit } from "../../data/maps/areaConnections";
+import { areaExits, arrivalFrom, exitAt, passagePathCells, type AreaId, type AreaExit } from "../../data/maps/areaConnections";
 import { getFarmAudio } from "./farmAudio";
 import { FarmEnvironment } from "./farmEnvironment";
+import { getRoadVisual, groundFrames } from "./groundVisual";
 
 const TILE = 32;
 const NAMES: Record<AreaId, string> = { farm: "林缘农场", forest: "林缘森林", town: "溪桥镇" };
@@ -26,34 +27,23 @@ export class AreaPassage {
     reservedIds: readonly string[] = [],
   ) {
     this.blockedUntil = scene.time.now + 350;
-    this.renderPaths(new Set(reservedIds));
+    this.renderPaths(reservedIds);
     this.renderSigns();
     const camera = scene.cameras.main;
     camera.resetFX(); camera.centerOn(player.x, player.y); camera.fadeIn(160, 0, 0, 0);
   }
 
-  private renderPaths(reserved: ReadonlySet<string>): void {
-    if (!this.scene.textures.exists("farm-home-path")) return;
-    const cells = new Map<string, { row: number; col: number }>();
+  private renderPaths(reservedIds: readonly string[]): void {
+    const cells = new Map(passagePathCells(this.world, this.area, reservedIds).map(cell => [`${cell.row}_${cell.col}`, cell]));
     const existing = new Set((this.world as ParsedMap & { paths?: { row: number; col: number }[] }).paths?.map(p => `${p.row}_${p.col}`));
-    for (const exit of areaExits(this.area)) {
-      for (let row = exit.row; row < exit.row + 2; row++) {
-        const columns = this.area === "farm" ? this.world.width : 5;
-        for (let step = 0; step < columns; step++) {
-          const col = this.area === "farm" || exit.edge === "left" ? step : this.world.width - 1 - step;
-          const id = `${row}_${col}`, tile = this.world.tiles[row]?.[col];
-          if (!tile || tile.solid || tile.key !== "grass") continue;
-          if (reserved.has(id) && col > 0 && col < this.world.width - 1) continue;
-          cells.set(id, { row, col });
-        }
-      }
-    }
     for (const [id, { row, col }] of cells) {
       const west = cells.has(`${row}_${col - 1}`) || existing.has(`${row}_${col - 1}`);
       const east = cells.has(`${row}_${col + 1}`) || existing.has(`${row}_${col + 1}`);
       const north = cells.has(`${row - 1}_${col}`);
       const frame = north ? !west ? "sw" : !east ? "se" : "s" : !west ? "nw" : !east ? "ne" : "n";
-      this.paths.set(id, this.scene.add.image(col * TILE, row * TILE, "farm-home-path", frame)
+      const art = getRoadVisual(frame, groundFrames(this.scene));
+      if (!art) continue;
+      this.paths.set(id, this.scene.add.image(col * TILE, row * TILE, art.texture, art.frame)
         .setOrigin(0).setDisplaySize(TILE, TILE).setDepth(1));
     }
   }
